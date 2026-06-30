@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package transport;
+
+option go_package = "internal/shared/pb";
+
+service TransportService {
+  rpc SaveText (TextData) returns (SaveResponse);
+  rpc SaveCard (CardData) returns (SaveResponse);
+  rpc SaveFile (BinaryData) returns (SaveResponse);
+}
+
+// Модель для текстовых данных
+message TextData {
+  string name = 1;
+  string text = 2;
+}
+
+// Модель для бинарных данных (файлов)
+message BinaryData {
+  string name = 1;
+  string file_name = 2;
+  bytes data = 3; // Передается эффективно без Base64 кодирования
+}
+
+// Модель для банковских карт
+message CardData {
+  string name = 1;
+  string card_number = 2;
+  string expiration_date = 3;
+  string cvv = 4;
+  string cardholder_name = 5;
+}
+
+// Универсальный пустой ответ для успешного выполнения
+message SaveResponse {}
