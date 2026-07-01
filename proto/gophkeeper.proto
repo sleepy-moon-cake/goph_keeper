@@ -8,6 +8,12 @@ service TransportService {
   rpc SaveText (TextData) returns (SaveResponse);
   rpc SaveCard (CardData) returns (SaveResponse);
   rpc SaveFile (BinaryData) returns (SaveResponse);
+  rpc DeleteEntityByName(DeleteRequest)  returns (SaveResponse);
+}
+
+// Запрос для удаления, содержащий имя сущности
+message DeleteRequest {
+  string name = 1;
 }
 
 // Модель для текстовых данных

@@ -1,4 +1,4 @@
-package commands
+package add
 
 import (
 	"fmt"
@@ -12,10 +12,6 @@ var (
 	textValue string
 	textPath  string = path
 )
-
-func init() {
-	addCmd.Flags().StringVar(&textValue, "value", "", "Text content")
-}
 
 func handleText() (models.TextData, error) {
 	var textData = models.TextData{Name: fileKey, Text: textValue}

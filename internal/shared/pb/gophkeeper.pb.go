@@ -20,6 +20,64 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Запрос для удаления, содержащий имя сущности
+type DeleteRequest struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Name string                 `protobuf:"bytes,1,opt,name=name,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *DeleteRequest) Reset() {
+	*x = DeleteRequest{}
+	mi := &file_gophkeeper_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteRequest) ProtoMessage() {}
+
+func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *DeleteRequest) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
+func (x *DeleteRequest) SetName(v string) {
+	x.xxx_hidden_Name = v
+}
+
+type DeleteRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Name string
+}
+
+func (b0 DeleteRequest_builder) Build() *DeleteRequest {
+	m0 := &DeleteRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Name = b.Name
+	return m0
+}
+
 // Модель для текстовых данных
 type TextData struct {
 	state           protoimpl.MessageState `protogen:"opaque.v1"`
@@ -31,7 +89,7 @@ type TextData struct {
 
 func (x *TextData) Reset() {
 	*x = TextData{}
-	mi := &file_gophkeeper_proto_msgTypes[0]
+	mi := &file_gophkeeper_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +101,7 @@ func (x *TextData) String() string {
 func (*TextData) ProtoMessage() {}
 
 func (x *TextData) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[0]
+	mi := &file_gophkeeper_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -104,7 +162,7 @@ type BinaryData struct {
 
 func (x *BinaryData) Reset() {
 	*x = BinaryData{}
-	mi := &file_gophkeeper_proto_msgTypes[1]
+	mi := &file_gophkeeper_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -116,7 +174,7 @@ func (x *BinaryData) String() string {
 func (*BinaryData) ProtoMessage() {}
 
 func (x *BinaryData) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[1]
+	mi := &file_gophkeeper_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -195,7 +253,7 @@ type CardData struct {
 
 func (x *CardData) Reset() {
 	*x = CardData{}
-	mi := &file_gophkeeper_proto_msgTypes[2]
+	mi := &file_gophkeeper_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -207,7 +265,7 @@ func (x *CardData) String() string {
 func (*CardData) ProtoMessage() {}
 
 func (x *CardData) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[2]
+	mi := &file_gophkeeper_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -304,7 +362,7 @@ type SaveResponse struct {
 
 func (x *SaveResponse) Reset() {
 	*x = SaveResponse{}
-	mi := &file_gophkeeper_proto_msgTypes[3]
+	mi := &file_gophkeeper_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -316,7 +374,7 @@ func (x *SaveResponse) String() string {
 func (*SaveResponse) ProtoMessage() {}
 
 func (x *SaveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[3]
+	mi := &file_gophkeeper_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -343,7 +401,9 @@ var File_gophkeeper_proto protoreflect.FileDescriptor
 
 const file_gophkeeper_proto_rawDesc = "" +
 	"\n" +
-	"\x10gophkeeper.proto\x12\ttransport\"2\n" +
+	"\x10gophkeeper.proto\x12\ttransport\"#\n" +
+	"\rDeleteRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"2\n" +
 	"\bTextData\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04text\x18\x02 \x01(\tR\x04text\"Q\n" +
@@ -359,28 +419,32 @@ const file_gophkeeper_proto_rawDesc = "" +
 	"\x0fexpiration_date\x18\x03 \x01(\tR\x0eexpirationDate\x12\x10\n" +
 	"\x03cvv\x18\x04 \x01(\tR\x03cvv\x12'\n" +
 	"\x0fcardholder_name\x18\x05 \x01(\tR\x0ecardholderName\"\x0e\n" +
-	"\fSaveResponse2\xc2\x01\n" +
+	"\fSaveResponse2\x8b\x02\n" +
 	"\x10TransportService\x128\n" +
 	"\bSaveText\x12\x13.transport.TextData\x1a\x17.transport.SaveResponse\x128\n" +
 	"\bSaveCard\x12\x13.transport.CardData\x1a\x17.transport.SaveResponse\x12:\n" +
-	"\bSaveFile\x12\x15.transport.BinaryData\x1a\x17.transport.SaveResponseB\x14Z\x12internal/shared/pbb\x06proto3"
+	"\bSaveFile\x12\x15.transport.BinaryData\x1a\x17.transport.SaveResponse\x12G\n" +
+	"\x12DeleteEntityByName\x12\x18.transport.DeleteRequest\x1a\x17.transport.SaveResponseB\x14Z\x12internal/shared/pbb\x06proto3"
 
-var file_gophkeeper_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_gophkeeper_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_gophkeeper_proto_goTypes = []any{
-	(*TextData)(nil),     // 0: transport.TextData
-	(*BinaryData)(nil),   // 1: transport.BinaryData
-	(*CardData)(nil),     // 2: transport.CardData
-	(*SaveResponse)(nil), // 3: transport.SaveResponse
+	(*DeleteRequest)(nil), // 0: transport.DeleteRequest
+	(*TextData)(nil),      // 1: transport.TextData
+	(*BinaryData)(nil),    // 2: transport.BinaryData
+	(*CardData)(nil),      // 3: transport.CardData
+	(*SaveResponse)(nil),  // 4: transport.SaveResponse
 }
 var file_gophkeeper_proto_depIdxs = []int32{
-	0, // 0: transport.TransportService.SaveText:input_type -> transport.TextData
-	2, // 1: transport.TransportService.SaveCard:input_type -> transport.CardData
-	1, // 2: transport.TransportService.SaveFile:input_type -> transport.BinaryData
-	3, // 3: transport.TransportService.SaveText:output_type -> transport.SaveResponse
-	3, // 4: transport.TransportService.SaveCard:output_type -> transport.SaveResponse
-	3, // 5: transport.TransportService.SaveFile:output_type -> transport.SaveResponse
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
+	1, // 0: transport.TransportService.SaveText:input_type -> transport.TextData
+	3, // 1: transport.TransportService.SaveCard:input_type -> transport.CardData
+	2, // 2: transport.TransportService.SaveFile:input_type -> transport.BinaryData
+	0, // 3: transport.TransportService.DeleteEntityByName:input_type -> transport.DeleteRequest
+	4, // 4: transport.TransportService.SaveText:output_type -> transport.SaveResponse
+	4, // 5: transport.TransportService.SaveCard:output_type -> transport.SaveResponse
+	4, // 6: transport.TransportService.SaveFile:output_type -> transport.SaveResponse
+	4, // 7: transport.TransportService.DeleteEntityByName:output_type -> transport.SaveResponse
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -397,7 +461,7 @@ func file_gophkeeper_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gophkeeper_proto_rawDesc), len(file_gophkeeper_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1,23 +1,16 @@
 package transport
 
 import (
-	"context"
 	"fmt"
-	"goph_keeper/internal/shared/models"
+	"goph_keeper/internal/client/interfaces"
 )
-
-type TransportService interface {
-	SaveText(ctx context.Context, data models.TextData) error
-	SaveCard(ctx context.Context, data models.CardData) error
-	SaveFile(ctx context.Context, data models.BinaryData) error
-}
 
 type TransportConfig struct {
 	AddrGRPC string
 	AddrHTTP string
 }
 
-func NewTransportService(cfg *TransportConfig) (TransportService, error) {
+func NewTransportService(cfg *TransportConfig) (interfaces.TransportService, error) {
 	if cfg.AddrGRPC != "" {
 		return NewGRPCTransportService(cfg.AddrGRPC), nil
 	}
@@ -26,5 +19,5 @@ func NewTransportService(cfg *TransportConfig) (TransportService, error) {
 		return NewHttpTransportService(cfg.AddrHTTP), nil
 	}
 
-	return nil, fmt.Errorf("addrGRPC and addrHTTP cant be emty")
+	return nil, fmt.Errorf("addrGRPC and addrHTTP cant be empty")
 }

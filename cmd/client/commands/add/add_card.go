@@ -1,4 +1,4 @@
-package commands
+package add
 
 import (
 	"fmt"
@@ -11,12 +11,6 @@ var (
 	number  string
 	expire  string
 )
-
-func init() {
-	addCmd.Flags().StringVar(&number, "number", "", "set credit card number")
-	addCmd.Flags().StringVar(&cvv, "cvv", "", "set credit card cvv")
-	addCmd.Flags().StringVar(&expire, "expire", "", "set credit card expired")
-}
 
 func handleCard() (models.CardData, error) {
 	if cvv == "" || number == "" || expire == "" {

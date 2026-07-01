@@ -20,6 +20,23 @@ func NewGRPCTransportService(addr string) *GPRCTransportService {
 	}
 }
 
+func (t *GPRCTransportService) DeleteEntityByName(ctx context.Context, name string) error {
+	client, err := t.getClient()
+
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	payload := &pb.DeleteRequest{}
+	payload.SetName(name)
+
+	if _, err := client.DeleteEntityByName(ctx, payload); err != nil {
+		return fmt.Errorf("delete entity:%w", err)
+	}
+	return nil
+}
+
 func (t *GPRCTransportService) SaveText(ctx context.Context, data models.TextData) error {
 	client, err := t.getClient()
 

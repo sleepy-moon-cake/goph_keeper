@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TransportService_SaveText_FullMethodName = "/transport.TransportService/SaveText"
-	TransportService_SaveCard_FullMethodName = "/transport.TransportService/SaveCard"
-	TransportService_SaveFile_FullMethodName = "/transport.TransportService/SaveFile"
+	TransportService_SaveText_FullMethodName           = "/transport.TransportService/SaveText"
+	TransportService_SaveCard_FullMethodName           = "/transport.TransportService/SaveCard"
+	TransportService_SaveFile_FullMethodName           = "/transport.TransportService/SaveFile"
+	TransportService_DeleteEntityByName_FullMethodName = "/transport.TransportService/DeleteEntityByName"
 )
 
 // TransportServiceClient is the client API for TransportService service.
@@ -31,6 +32,7 @@ type TransportServiceClient interface {
 	SaveText(ctx context.Context, in *TextData, opts ...grpc.CallOption) (*SaveResponse, error)
 	SaveCard(ctx context.Context, in *CardData, opts ...grpc.CallOption) (*SaveResponse, error)
 	SaveFile(ctx context.Context, in *BinaryData, opts ...grpc.CallOption) (*SaveResponse, error)
+	DeleteEntityByName(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*SaveResponse, error)
 }
 
 type transportServiceClient struct {
@@ -71,6 +73,16 @@ func (c *transportServiceClient) SaveFile(ctx context.Context, in *BinaryData, o
 	return out, nil
 }
 
+func (c *transportServiceClient) DeleteEntityByName(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*SaveResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SaveResponse)
+	err := c.cc.Invoke(ctx, TransportService_DeleteEntityByName_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransportServiceServer is the server API for TransportService service.
 // All implementations must embed UnimplementedTransportServiceServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type TransportServiceServer interface {
 	SaveText(context.Context, *TextData) (*SaveResponse, error)
 	SaveCard(context.Context, *CardData) (*SaveResponse, error)
 	SaveFile(context.Context, *BinaryData) (*SaveResponse, error)
+	DeleteEntityByName(context.Context, *DeleteRequest) (*SaveResponse, error)
 	mustEmbedUnimplementedTransportServiceServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedTransportServiceServer) SaveCard(context.Context, *CardData) 
 }
 func (UnimplementedTransportServiceServer) SaveFile(context.Context, *BinaryData) (*SaveResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SaveFile not implemented")
+}
+func (UnimplementedTransportServiceServer) DeleteEntityByName(context.Context, *DeleteRequest) (*SaveResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteEntityByName not implemented")
 }
 func (UnimplementedTransportServiceServer) mustEmbedUnimplementedTransportServiceServer() {}
 func (UnimplementedTransportServiceServer) testEmbeddedByValue()                          {}
@@ -172,6 +188,24 @@ func _TransportService_SaveFile_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransportService_DeleteEntityByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransportServiceServer).DeleteEntityByName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransportService_DeleteEntityByName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransportServiceServer).DeleteEntityByName(ctx, req.(*DeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TransportService_ServiceDesc is the grpc.ServiceDesc for TransportService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var TransportService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveFile",
 			Handler:    _TransportService_SaveFile_Handler,
+		},
+		{
+			MethodName: "DeleteEntityByName",
+			Handler:    _TransportService_DeleteEntityByName_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

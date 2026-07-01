@@ -3,6 +3,8 @@ package commands
 import (
 	"context"
 	"fmt"
+	"goph_keeper/cmd/client/commands/add"
+	"goph_keeper/cmd/client/commands/delete"
 	"goph_keeper/internal/client/transport"
 
 	"github.com/spf13/cobra"
@@ -12,8 +14,6 @@ var (
 	grpcAddr string
 
 	serverAddr string
-
-	clientService Service
 )
 
 var rootCmd = &cobra.Command{
@@ -22,7 +22,7 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute(ctx context.Context) error {
-	tserver, err := transport.NewTransportService(&transport.TransportConfig{
+	ts, err := transport.NewTransportService(&transport.TransportConfig{
 		AddrGRPC: grpcAddr,
 		AddrHTTP: serverAddr,
 	})
@@ -31,7 +31,7 @@ func Execute(ctx context.Context) error {
 		return fmt.Errorf("create trasport service:%w", err)
 	}
 
-	clientService = tserver
+	rootCmd.AddCommand(add.NewAddCommand(ts), delete.NewDeleteCmd(ts))
 
 	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		return fmt.Errorf("execute cobra:%w", err)
