@@ -6,6 +6,7 @@ import (
 	"goph_keeper/cmd/client/commands/add"
 	"goph_keeper/cmd/client/commands/delete"
 	"goph_keeper/cmd/client/commands/get"
+	"goph_keeper/cmd/client/commands/list"
 	"goph_keeper/internal/client/transport"
 
 	"github.com/spf13/cobra"
@@ -36,6 +37,7 @@ func Execute(ctx context.Context) error {
 		add.NewAddCommand(ts),
 		delete.NewDeleteCmd(ts),
 		get.NewGetCmd(ts),
+		list.NewListCmd(ts),
 	)
 
 	if err := rootCmd.ExecuteContext(ctx); err != nil {

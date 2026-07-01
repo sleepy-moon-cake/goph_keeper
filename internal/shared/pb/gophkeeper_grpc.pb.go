@@ -22,6 +22,7 @@ const (
 	TransportService_SaveRecord_FullMethodName   = "/transport.TransportService/SaveRecord"
 	TransportService_GetRecord_FullMethodName    = "/transport.TransportService/GetRecord"
 	TransportService_DeleteRecord_FullMethodName = "/transport.TransportService/DeleteRecord"
+	TransportService_ListRecords_FullMethodName  = "/transport.TransportService/ListRecords"
 )
 
 // TransportServiceClient is the client API for TransportService service.
@@ -32,6 +33,7 @@ type TransportServiceClient interface {
 	SaveRecord(ctx context.Context, in *Record, opts ...grpc.CallOption) (*SaveResponse, error)
 	GetRecord(ctx context.Context, in *GetRecordRequest, opts ...grpc.CallOption) (*Record, error)
 	DeleteRecord(ctx context.Context, in *GetRecordRequest, opts ...grpc.CallOption) (*SaveResponse, error)
+	ListRecords(ctx context.Context, in *ListRecordsRequest, opts ...grpc.CallOption) (*ListRecordsResponse, error)
 }
 
 type transportServiceClient struct {
@@ -72,6 +74,16 @@ func (c *transportServiceClient) DeleteRecord(ctx context.Context, in *GetRecord
 	return out, nil
 }
 
+func (c *transportServiceClient) ListRecords(ctx context.Context, in *ListRecordsRequest, opts ...grpc.CallOption) (*ListRecordsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRecordsResponse)
+	err := c.cc.Invoke(ctx, TransportService_ListRecords_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransportServiceServer is the server API for TransportService service.
 // All implementations must embed UnimplementedTransportServiceServer
 // for forward compatibility.
@@ -80,6 +92,7 @@ type TransportServiceServer interface {
 	SaveRecord(context.Context, *Record) (*SaveResponse, error)
 	GetRecord(context.Context, *GetRecordRequest) (*Record, error)
 	DeleteRecord(context.Context, *GetRecordRequest) (*SaveResponse, error)
+	ListRecords(context.Context, *ListRecordsRequest) (*ListRecordsResponse, error)
 	mustEmbedUnimplementedTransportServiceServer()
 }
 
@@ -98,6 +111,9 @@ func (UnimplementedTransportServiceServer) GetRecord(context.Context, *GetRecord
 }
 func (UnimplementedTransportServiceServer) DeleteRecord(context.Context, *GetRecordRequest) (*SaveResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteRecord not implemented")
+}
+func (UnimplementedTransportServiceServer) ListRecords(context.Context, *ListRecordsRequest) (*ListRecordsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRecords not implemented")
 }
 func (UnimplementedTransportServiceServer) mustEmbedUnimplementedTransportServiceServer() {}
 func (UnimplementedTransportServiceServer) testEmbeddedByValue()                          {}
@@ -174,6 +190,24 @@ func _TransportService_DeleteRecord_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransportService_ListRecords_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRecordsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransportServiceServer).ListRecords(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransportService_ListRecords_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransportServiceServer).ListRecords(ctx, req.(*ListRecordsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TransportService_ServiceDesc is the grpc.ServiceDesc for TransportService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -192,6 +226,10 @@ var TransportService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteRecord",
 			Handler:    _TransportService_DeleteRecord_Handler,
+		},
+		{
+			MethodName: "ListRecords",
+			Handler:    _TransportService_ListRecords_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

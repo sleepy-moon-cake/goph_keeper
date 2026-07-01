@@ -37,6 +37,31 @@ func getEncryptedPayload[T models.CardData | models.TextData | models.BinaryData
 	return dst, nil
 }
 
+func (t *GPRCTransportService) ListRecords(ctx context.Context, limit int) ([]models.RecordMeta, error) {
+	client, err := t.getClient()
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+
+	payload := &pb.ListRecordsRequest{}
+	payload.SetLimit(int32(limit))
+
+	resp, err := client.ListRecords(ctx, payload)
+	if err != nil {
+		return nil, fmt.Errorf("list records grpc: %w", err)
+	}
+
+	var result []models.RecordMeta
+	for _, r := range resp.GetRecords() {
+		result = append(result, models.RecordMeta{
+			Name:     r.GetName(),
+			DataType: r.GetDataType(),
+		})
+	}
+	return result, nil
+}
+
 func (t *GPRCTransportService) GetEntityByName(ctx context.Context, name string) (*models.EncryptedRecord, error) {
 	client, err := t.getClient()
 	if err != nil {
@@ -44,17 +69,14 @@ func (t *GPRCTransportService) GetEntityByName(ctx context.Context, name string)
 	}
 	defer client.Close()
 
-	// 1. Формируем запрос с именем сущности
 	payload := &pb.GetRecordRequest{}
 	payload.SetName(name)
 
-	// 2. Запрашиваем "слепые" данные у сервера
 	resp, err := client.GetRecord(ctx, payload)
 	if err != nil {
 		return nil, fmt.Errorf("get record: %w", err)
 	}
 
-	// 3. Собираем локальную модель зашифрованной записи через Opaque-геттеры
 	return &models.EncryptedRecord{
 		Name:     resp.GetName(),
 		DataType: resp.GetDataType(),
@@ -70,20 +92,17 @@ func (t *GPRCTransportService) SaveText(ctx context.Context, data models.TextDat
 	}
 	defer client.Close()
 
-	// 1. Хэшируем данные
 	encryptedBytes, err := getEncryptedPayload(data)
 	if err != nil {
 		return fmt.Errorf("saveText crypto: %w", err)
 	}
 
-	// 2. Формируем универсальную gRPC-модель pb.Record
 	payload := &pb.Record{}
 	payload.SetName(data.Name)
 	payload.SetDataType("text")
 	payload.SetSecureData(encryptedBytes)
-	payload.SetNonce(nil) // Для хэша nonce не нужен
+	payload.SetNonce(nil)
 
-	// 3. Вызываем единый gRPC метод сохранения
 	if _, err := client.SaveRecord(ctx, payload); err != nil {
 		return fmt.Errorf("saveText: %w", err)
 	}
@@ -145,7 +164,6 @@ func (t *GPRCTransportService) DeleteEntityByName(ctx context.Context, name stri
 	}
 	defer client.Close()
 
-	// Используем обновленный тип запроса pb.GetRecordRequest из нового прото-файла
 	payload := &pb.GetRecordRequest{}
 	payload.SetName(name)
 

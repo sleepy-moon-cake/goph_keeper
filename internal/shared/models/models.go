@@ -25,3 +25,8 @@ type EncryptedRecord struct {
 	Payload  []byte `json:"payload"`   // ЗАШИФРОВАННЫЕ байты исходной структуры
 	Nonce    []byte `json:"nonce"`     // Вектор инициализации для AES-GCM
 }
+
+type RecordMeta struct {
+	Name     string `json:"name"`      // Имя секреты (например, "My Visa")
+	DataType string `json:"data_type"` // Тип секрета (например, "card")
+}

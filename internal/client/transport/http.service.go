@@ -24,7 +24,32 @@ func NewHttpTransportService(addr string) *HttpTransportService {
 	}
 }
 
-// GetEntityByName отправляет GET-запрос для получения зашифрованной записи по её имени
+func (t *HttpTransportService) ListRecords(ctx context.Context, limit int) ([]models.RecordMeta, error) {
+	fullURL := fmt.Sprintf("%s?limit=%d", t.addr, limit)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fullURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create list request: %w", err)
+	}
+
+	resp, err := t.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("http request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("bad status code: %d", resp.StatusCode)
+	}
+
+	var records []models.RecordMeta
+	if err := json.NewDecoder(resp.Body).Decode(&records); err != nil {
+		return nil, fmt.Errorf("failed to decode list response: %w", err)
+	}
+
+	return records, nil
+}
+
 func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string) (*models.EncryptedRecord, error) {
 	fullURL := fmt.Sprintf("%s/%s", t.addr, name)
 
@@ -47,7 +72,6 @@ func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string)
 		return nil, fmt.Errorf("bad status code: %d", resp.StatusCode)
 	}
 
-	// Декодируем универсальный зашифрованный JSON ответа от сервера
 	var record models.EncryptedRecord
 	if err := json.NewDecoder(resp.Body).Decode(&record); err != nil {
 		return nil, fmt.Errorf("failed to decode response body: %w", err)
@@ -56,7 +80,6 @@ func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string)
 	return &record, nil
 }
 
-// DeleteEntityByName передает имя сущности для удаления через URL Path
 func (t *HttpTransportService) DeleteEntityByName(ctx context.Context, name string) error {
 	fullURL := fmt.Sprintf("%s/%s", t.addr, name)
 

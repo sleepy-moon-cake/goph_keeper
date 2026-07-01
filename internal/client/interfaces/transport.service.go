@@ -11,4 +11,5 @@ type TransportService interface {
 	SaveFile(ctx context.Context, data models.BinaryData) error
 	DeleteEntityByName(ctx context.Context, name string) error
 	GetEntityByName(ctx context.Context, name string) (*models.EncryptedRecord, error)
+	ListRecords(ctx context.Context, limit int) ([]models.RecordMeta, error)
 }

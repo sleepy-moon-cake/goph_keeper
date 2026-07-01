@@ -8,6 +8,20 @@ service TransportService {
   rpc SaveRecord (Record) returns (SaveResponse);
   rpc GetRecord (GetRecordRequest) returns (Record);
   rpc DeleteRecord (GetRecordRequest) returns (SaveResponse);
+  rpc ListRecords (ListRecordsRequest) returns (ListRecordsResponse);
+}
+
+message ListRecordsRequest {
+  int32 limit = 1; // 0 означает "без лимита"
+}
+
+message ListRecordsResponse {
+  // Компактное описание записи для списка
+  message RecordMeta {
+    string name = 1;
+    string data_type = 2;
+  }
+  repeated RecordMeta records = 1;
 }
 
 message Record {

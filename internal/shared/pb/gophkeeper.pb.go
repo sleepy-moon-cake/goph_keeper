@@ -20,6 +20,122 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ListRecordsRequest struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Limit int32                  `protobuf:"varint,1,opt,name=limit,proto3"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ListRecordsRequest) Reset() {
+	*x = ListRecordsRequest{}
+	mi := &file_gophkeeper_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRecordsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRecordsRequest) ProtoMessage() {}
+
+func (x *ListRecordsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ListRecordsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.xxx_hidden_Limit
+	}
+	return 0
+}
+
+func (x *ListRecordsRequest) SetLimit(v int32) {
+	x.xxx_hidden_Limit = v
+}
+
+type ListRecordsRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Limit int32
+}
+
+func (b0 ListRecordsRequest_builder) Build() *ListRecordsRequest {
+	m0 := &ListRecordsRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Limit = b.Limit
+	return m0
+}
+
+type ListRecordsResponse struct {
+	state              protoimpl.MessageState             `protogen:"opaque.v1"`
+	xxx_hidden_Records *[]*ListRecordsResponse_RecordMeta `protobuf:"bytes,1,rep,name=records,proto3"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ListRecordsResponse) Reset() {
+	*x = ListRecordsResponse{}
+	mi := &file_gophkeeper_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRecordsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRecordsResponse) ProtoMessage() {}
+
+func (x *ListRecordsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ListRecordsResponse) GetRecords() []*ListRecordsResponse_RecordMeta {
+	if x != nil {
+		if x.xxx_hidden_Records != nil {
+			return *x.xxx_hidden_Records
+		}
+	}
+	return nil
+}
+
+func (x *ListRecordsResponse) SetRecords(v []*ListRecordsResponse_RecordMeta) {
+	x.xxx_hidden_Records = &v
+}
+
+type ListRecordsResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Records []*ListRecordsResponse_RecordMeta
+}
+
+func (b0 ListRecordsResponse_builder) Build() *ListRecordsResponse {
+	m0 := &ListRecordsResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Records = &b.Records
+	return m0
+}
+
 type Record struct {
 	state                 protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Name       string                 `protobuf:"bytes,1,opt,name=name,proto3"`
@@ -32,7 +148,7 @@ type Record struct {
 
 func (x *Record) Reset() {
 	*x = Record{}
-	mi := &file_gophkeeper_proto_msgTypes[0]
+	mi := &file_gophkeeper_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +160,7 @@ func (x *Record) String() string {
 func (*Record) ProtoMessage() {}
 
 func (x *Record) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[0]
+	mi := &file_gophkeeper_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -134,7 +250,7 @@ type GetRecordRequest struct {
 
 func (x *GetRecordRequest) Reset() {
 	*x = GetRecordRequest{}
-	mi := &file_gophkeeper_proto_msgTypes[1]
+	mi := &file_gophkeeper_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -146,7 +262,7 @@ func (x *GetRecordRequest) String() string {
 func (*GetRecordRequest) ProtoMessage() {}
 
 func (x *GetRecordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[1]
+	mi := &file_gophkeeper_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -190,7 +306,7 @@ type SaveResponse struct {
 
 func (x *SaveResponse) Reset() {
 	*x = SaveResponse{}
-	mi := &file_gophkeeper_proto_msgTypes[2]
+	mi := &file_gophkeeper_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -202,7 +318,7 @@ func (x *SaveResponse) String() string {
 func (*SaveResponse) ProtoMessage() {}
 
 func (x *SaveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[2]
+	mi := &file_gophkeeper_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -225,11 +341,91 @@ func (b0 SaveResponse_builder) Build() *SaveResponse {
 	return m0
 }
 
+// Компактное описание записи для списка
+type ListRecordsResponse_RecordMeta struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Name     string                 `protobuf:"bytes,1,opt,name=name,proto3"`
+	xxx_hidden_DataType string                 `protobuf:"bytes,2,opt,name=data_type,json=dataType,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *ListRecordsResponse_RecordMeta) Reset() {
+	*x = ListRecordsResponse_RecordMeta{}
+	mi := &file_gophkeeper_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRecordsResponse_RecordMeta) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRecordsResponse_RecordMeta) ProtoMessage() {}
+
+func (x *ListRecordsResponse_RecordMeta) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ListRecordsResponse_RecordMeta) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
+func (x *ListRecordsResponse_RecordMeta) GetDataType() string {
+	if x != nil {
+		return x.xxx_hidden_DataType
+	}
+	return ""
+}
+
+func (x *ListRecordsResponse_RecordMeta) SetName(v string) {
+	x.xxx_hidden_Name = v
+}
+
+func (x *ListRecordsResponse_RecordMeta) SetDataType(v string) {
+	x.xxx_hidden_DataType = v
+}
+
+type ListRecordsResponse_RecordMeta_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Name     string
+	DataType string
+}
+
+func (b0 ListRecordsResponse_RecordMeta_builder) Build() *ListRecordsResponse_RecordMeta {
+	m0 := &ListRecordsResponse_RecordMeta{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_DataType = b.DataType
+	return m0
+}
+
 var File_gophkeeper_proto protoreflect.FileDescriptor
 
 const file_gophkeeper_proto_rawDesc = "" +
 	"\n" +
-	"\x10gophkeeper.proto\x12\ttransport\"p\n" +
+	"\x10gophkeeper.proto\x12\ttransport\"*\n" +
+	"\x12ListRecordsRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\"\x99\x01\n" +
+	"\x13ListRecordsResponse\x12C\n" +
+	"\arecords\x18\x01 \x03(\v2).transport.ListRecordsResponse.RecordMetaR\arecords\x1a=\n" +
+	"\n" +
+	"RecordMeta\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
+	"\tdata_type\x18\x02 \x01(\tR\bdataType\"p\n" +
 	"\x06Record\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
 	"\tdata_type\x18\x02 \x01(\tR\bdataType\x12\x1f\n" +
@@ -238,31 +434,38 @@ const file_gophkeeper_proto_rawDesc = "" +
 	"\x05nonce\x18\x04 \x01(\fR\x05nonce\"&\n" +
 	"\x10GetRecordRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"\x0e\n" +
-	"\fSaveResponse2\xcf\x01\n" +
+	"\fSaveResponse2\x9d\x02\n" +
 	"\x10TransportService\x128\n" +
 	"\n" +
 	"SaveRecord\x12\x11.transport.Record\x1a\x17.transport.SaveResponse\x12;\n" +
 	"\tGetRecord\x12\x1b.transport.GetRecordRequest\x1a\x11.transport.Record\x12D\n" +
-	"\fDeleteRecord\x12\x1b.transport.GetRecordRequest\x1a\x17.transport.SaveResponseB\aZ\x05./;pbb\x06proto3"
+	"\fDeleteRecord\x12\x1b.transport.GetRecordRequest\x1a\x17.transport.SaveResponse\x12L\n" +
+	"\vListRecords\x12\x1d.transport.ListRecordsRequest\x1a\x1e.transport.ListRecordsResponseB\aZ\x05./;pbb\x06proto3"
 
-var file_gophkeeper_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_gophkeeper_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_gophkeeper_proto_goTypes = []any{
-	(*Record)(nil),           // 0: transport.Record
-	(*GetRecordRequest)(nil), // 1: transport.GetRecordRequest
-	(*SaveResponse)(nil),     // 2: transport.SaveResponse
+	(*ListRecordsRequest)(nil),             // 0: transport.ListRecordsRequest
+	(*ListRecordsResponse)(nil),            // 1: transport.ListRecordsResponse
+	(*Record)(nil),                         // 2: transport.Record
+	(*GetRecordRequest)(nil),               // 3: transport.GetRecordRequest
+	(*SaveResponse)(nil),                   // 4: transport.SaveResponse
+	(*ListRecordsResponse_RecordMeta)(nil), // 5: transport.ListRecordsResponse.RecordMeta
 }
 var file_gophkeeper_proto_depIdxs = []int32{
-	0, // 0: transport.TransportService.SaveRecord:input_type -> transport.Record
-	1, // 1: transport.TransportService.GetRecord:input_type -> transport.GetRecordRequest
-	1, // 2: transport.TransportService.DeleteRecord:input_type -> transport.GetRecordRequest
-	2, // 3: transport.TransportService.SaveRecord:output_type -> transport.SaveResponse
-	0, // 4: transport.TransportService.GetRecord:output_type -> transport.Record
-	2, // 5: transport.TransportService.DeleteRecord:output_type -> transport.SaveResponse
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	5, // 0: transport.ListRecordsResponse.records:type_name -> transport.ListRecordsResponse.RecordMeta
+	2, // 1: transport.TransportService.SaveRecord:input_type -> transport.Record
+	3, // 2: transport.TransportService.GetRecord:input_type -> transport.GetRecordRequest
+	3, // 3: transport.TransportService.DeleteRecord:input_type -> transport.GetRecordRequest
+	0, // 4: transport.TransportService.ListRecords:input_type -> transport.ListRecordsRequest
+	4, // 5: transport.TransportService.SaveRecord:output_type -> transport.SaveResponse
+	2, // 6: transport.TransportService.GetRecord:output_type -> transport.Record
+	4, // 7: transport.TransportService.DeleteRecord:output_type -> transport.SaveResponse
+	1, // 8: transport.TransportService.ListRecords:output_type -> transport.ListRecordsResponse
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_gophkeeper_proto_init() }
@@ -276,7 +479,7 @@ func file_gophkeeper_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gophkeeper_proto_rawDesc), len(file_gophkeeper_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
