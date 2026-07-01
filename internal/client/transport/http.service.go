@@ -3,12 +3,13 @@ package transport
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"goph_keeper/internal/shared/models"
 	"log/slog"
 	"net/http"
-	"strings"
+
+	"goph_keeper/internal/shared/models"
 )
 
 type HttpTransportService struct {
@@ -23,19 +24,53 @@ func NewHttpTransportService(addr string) *HttpTransportService {
 	}
 }
 
-func (t *HttpTransportService) DeleteEntityByName(ctx context.Context, name string) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, t.addr, strings.NewReader(name))
+// GetEntityByName отправляет GET-запрос для получения зашифрованной записи по её имени
+func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string) (*models.EncryptedRecord, error) {
+	fullURL := fmt.Sprintf("%s/%s", t.addr, name)
 
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fullURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create get request: %w", err)
+	}
+
+	resp, err := t.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("http request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("record not found")
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("bad status code: %d", resp.StatusCode)
+	}
+
+	// Декодируем универсальный зашифрованный JSON ответа от сервера
+	var record models.EncryptedRecord
+	if err := json.NewDecoder(resp.Body).Decode(&record); err != nil {
+		return nil, fmt.Errorf("failed to decode response body: %w", err)
+	}
+
+	return &record, nil
+}
+
+// DeleteEntityByName передает имя сущности для удаления через URL Path
+func (t *HttpTransportService) DeleteEntityByName(ctx context.Context, name string) error {
+	fullURL := fmt.Sprintf("%s/%s", t.addr, name)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, fullURL, nil)
 	if err != nil {
 		return fmt.Errorf("try to delete entity: %w", err)
 	}
-	req.Header.Set("Content-type", "text/plain")
 
 	resp, err := t.httpClient.Do(req)
-
 	if err != nil {
 		return fmt.Errorf("http request failed: %w", err)
 	}
+
+	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("bad status code: %d", resp.StatusCode)
@@ -44,27 +79,75 @@ func (t *HttpTransportService) DeleteEntityByName(ctx context.Context, name stri
 }
 
 func (t *HttpTransportService) SaveText(ctx context.Context, data models.TextData) error {
-	if err := sendJSON(ctx, t, data); err != nil {
-		return fmt.Errorf("try to store text: %w", err)
+	dst, err := getEncryptedData(data)
+	if err != nil {
+		return fmt.Errorf("encrypt data: %w", err)
+	}
+
+	record := models.EncryptedRecord{
+		Name:     data.Name,
+		DataType: "text",
+		Payload:  dst,
+		Nonce:    nil,
+	}
+
+	if err := sendJSON(ctx, t, record); err != nil {
+		return fmt.Errorf("try to send data: %w", err)
 	}
 	return nil
 }
 
 func (t *HttpTransportService) SaveCard(ctx context.Context, data models.CardData) error {
-	if err := sendJSON(ctx, t, data); err != nil {
-		return fmt.Errorf("try to store card: %w", err)
+	dst, err := getEncryptedData(data)
+	if err != nil {
+		return fmt.Errorf("encrypt data: %w", err)
+	}
+
+	record := models.EncryptedRecord{
+		Name:     data.Name,
+		DataType: "card",
+		Payload:  dst,
+		Nonce:    nil,
+	}
+
+	if err := sendJSON(ctx, t, record); err != nil {
+		return fmt.Errorf("try to send data: %w", err)
 	}
 	return nil
 }
 
 func (t *HttpTransportService) SaveFile(ctx context.Context, data models.BinaryData) error {
-	if err := sendJSON(ctx, t, data); err != nil {
+	dst, err := getEncryptedData(data)
+	if err != nil {
+		return fmt.Errorf("encrypt data: %w", err)
+	}
+
+	record := models.EncryptedRecord{
+		Name:     data.Name,
+		DataType: "file",
+		Payload:  dst,
+		Nonce:    nil,
+	}
+
+	if err := sendJSON(ctx, t, record); err != nil {
 		return fmt.Errorf("try to store file: %w", err)
 	}
 	return nil
 }
 
-func sendJSON[T models.BinaryData | models.CardData | models.TextData](ctx context.Context, t *HttpTransportService, data T) error {
+func getEncryptedData[T models.CardData | models.BinaryData | models.TextData](data T) ([]byte, error) {
+	rawBytes, err := json.Marshal(data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal data: %w", err)
+	}
+
+	h := sha256.New()
+	h.Write(rawBytes)
+
+	return h.Sum(nil), nil
+}
+
+func sendJSON(ctx context.Context, t *HttpTransportService, data models.EncryptedRecord) error {
 	var bdata bytes.Buffer
 	if err := json.NewEncoder(&bdata).Encode(data); err != nil {
 		slog.Error("json encode error", "error", err)

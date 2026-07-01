@@ -20,28 +20,30 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Запрос для удаления, содержащий имя сущности
-type DeleteRequest struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name string                 `protobuf:"bytes,1,opt,name=name,proto3"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+type Record struct {
+	state                 protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Name       string                 `protobuf:"bytes,1,opt,name=name,proto3"`
+	xxx_hidden_DataType   string                 `protobuf:"bytes,2,opt,name=data_type,json=dataType,proto3"`
+	xxx_hidden_SecureData []byte                 `protobuf:"bytes,3,opt,name=secure_data,json=secureData,proto3"`
+	xxx_hidden_Nonce      []byte                 `protobuf:"bytes,4,opt,name=nonce,proto3"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
-func (x *DeleteRequest) Reset() {
-	*x = DeleteRequest{}
+func (x *Record) Reset() {
+	*x = Record{}
 	mi := &file_gophkeeper_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteRequest) String() string {
+func (x *Record) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteRequest) ProtoMessage() {}
+func (*Record) ProtoMessage() {}
 
-func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
+func (x *Record) ProtoReflect() protoreflect.Message {
 	mi := &file_gophkeeper_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -53,219 +55,98 @@ func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *DeleteRequest) GetName() string {
+func (x *Record) GetName() string {
 	if x != nil {
 		return x.xxx_hidden_Name
 	}
 	return ""
 }
 
-func (x *DeleteRequest) SetName(v string) {
-	x.xxx_hidden_Name = v
-}
-
-type DeleteRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Name string
-}
-
-func (b0 DeleteRequest_builder) Build() *DeleteRequest {
-	m0 := &DeleteRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Name = b.Name
-	return m0
-}
-
-// Модель для текстовых данных
-type TextData struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name string                 `protobuf:"bytes,1,opt,name=name,proto3"`
-	xxx_hidden_Text string                 `protobuf:"bytes,2,opt,name=text,proto3"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *TextData) Reset() {
-	*x = TextData{}
-	mi := &file_gophkeeper_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TextData) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TextData) ProtoMessage() {}
-
-func (x *TextData) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[1]
+func (x *Record) GetDataType() string {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *TextData) GetName() string {
-	if x != nil {
-		return x.xxx_hidden_Name
+		return x.xxx_hidden_DataType
 	}
 	return ""
 }
 
-func (x *TextData) GetText() string {
+func (x *Record) GetSecureData() []byte {
 	if x != nil {
-		return x.xxx_hidden_Text
-	}
-	return ""
-}
-
-func (x *TextData) SetName(v string) {
-	x.xxx_hidden_Name = v
-}
-
-func (x *TextData) SetText(v string) {
-	x.xxx_hidden_Text = v
-}
-
-type TextData_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Name string
-	Text string
-}
-
-func (b0 TextData_builder) Build() *TextData {
-	m0 := &TextData{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Name = b.Name
-	x.xxx_hidden_Text = b.Text
-	return m0
-}
-
-// Модель для бинарных данных (файлов)
-type BinaryData struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name     string                 `protobuf:"bytes,1,opt,name=name,proto3"`
-	xxx_hidden_FileName string                 `protobuf:"bytes,2,opt,name=file_name,json=fileName,proto3"`
-	xxx_hidden_Data     []byte                 `protobuf:"bytes,3,opt,name=data,proto3"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *BinaryData) Reset() {
-	*x = BinaryData{}
-	mi := &file_gophkeeper_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BinaryData) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BinaryData) ProtoMessage() {}
-
-func (x *BinaryData) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BinaryData) GetName() string {
-	if x != nil {
-		return x.xxx_hidden_Name
-	}
-	return ""
-}
-
-func (x *BinaryData) GetFileName() string {
-	if x != nil {
-		return x.xxx_hidden_FileName
-	}
-	return ""
-}
-
-func (x *BinaryData) GetData() []byte {
-	if x != nil {
-		return x.xxx_hidden_Data
+		return x.xxx_hidden_SecureData
 	}
 	return nil
 }
 
-func (x *BinaryData) SetName(v string) {
+func (x *Record) GetNonce() []byte {
+	if x != nil {
+		return x.xxx_hidden_Nonce
+	}
+	return nil
+}
+
+func (x *Record) SetName(v string) {
 	x.xxx_hidden_Name = v
 }
 
-func (x *BinaryData) SetFileName(v string) {
-	x.xxx_hidden_FileName = v
+func (x *Record) SetDataType(v string) {
+	x.xxx_hidden_DataType = v
 }
 
-func (x *BinaryData) SetData(v []byte) {
+func (x *Record) SetSecureData(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
-	x.xxx_hidden_Data = v
+	x.xxx_hidden_SecureData = v
 }
 
-type BinaryData_builder struct {
+func (x *Record) SetNonce(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Nonce = v
+}
+
+type Record_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Name     string
-	FileName string
-	Data     []byte
+	Name       string
+	DataType   string
+	SecureData []byte
+	Nonce      []byte
 }
 
-func (b0 BinaryData_builder) Build() *BinaryData {
-	m0 := &BinaryData{}
+func (b0 Record_builder) Build() *Record {
+	m0 := &Record{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Name = b.Name
-	x.xxx_hidden_FileName = b.FileName
-	x.xxx_hidden_Data = b.Data
+	x.xxx_hidden_DataType = b.DataType
+	x.xxx_hidden_SecureData = b.SecureData
+	x.xxx_hidden_Nonce = b.Nonce
 	return m0
 }
 
-// Модель для банковских карт
-type CardData struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name           string                 `protobuf:"bytes,1,opt,name=name,proto3"`
-	xxx_hidden_CardNumber     string                 `protobuf:"bytes,2,opt,name=card_number,json=cardNumber,proto3"`
-	xxx_hidden_ExpirationDate string                 `protobuf:"bytes,3,opt,name=expiration_date,json=expirationDate,proto3"`
-	xxx_hidden_Cvv            string                 `protobuf:"bytes,4,opt,name=cvv,proto3"`
-	xxx_hidden_CardholderName string                 `protobuf:"bytes,5,opt,name=cardholder_name,json=cardholderName,proto3"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+type GetRecordRequest struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Name string                 `protobuf:"bytes,1,opt,name=name,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
-func (x *CardData) Reset() {
-	*x = CardData{}
-	mi := &file_gophkeeper_proto_msgTypes[3]
+func (x *GetRecordRequest) Reset() {
+	*x = GetRecordRequest{}
+	mi := &file_gophkeeper_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CardData) String() string {
+func (x *GetRecordRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CardData) ProtoMessage() {}
+func (*GetRecordRequest) ProtoMessage() {}
 
-func (x *CardData) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[3]
+func (x *GetRecordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -276,84 +157,31 @@ func (x *CardData) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *CardData) GetName() string {
+func (x *GetRecordRequest) GetName() string {
 	if x != nil {
 		return x.xxx_hidden_Name
 	}
 	return ""
 }
 
-func (x *CardData) GetCardNumber() string {
-	if x != nil {
-		return x.xxx_hidden_CardNumber
-	}
-	return ""
-}
-
-func (x *CardData) GetExpirationDate() string {
-	if x != nil {
-		return x.xxx_hidden_ExpirationDate
-	}
-	return ""
-}
-
-func (x *CardData) GetCvv() string {
-	if x != nil {
-		return x.xxx_hidden_Cvv
-	}
-	return ""
-}
-
-func (x *CardData) GetCardholderName() string {
-	if x != nil {
-		return x.xxx_hidden_CardholderName
-	}
-	return ""
-}
-
-func (x *CardData) SetName(v string) {
+func (x *GetRecordRequest) SetName(v string) {
 	x.xxx_hidden_Name = v
 }
 
-func (x *CardData) SetCardNumber(v string) {
-	x.xxx_hidden_CardNumber = v
-}
-
-func (x *CardData) SetExpirationDate(v string) {
-	x.xxx_hidden_ExpirationDate = v
-}
-
-func (x *CardData) SetCvv(v string) {
-	x.xxx_hidden_Cvv = v
-}
-
-func (x *CardData) SetCardholderName(v string) {
-	x.xxx_hidden_CardholderName = v
-}
-
-type CardData_builder struct {
+type GetRecordRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Name           string
-	CardNumber     string
-	ExpirationDate string
-	Cvv            string
-	CardholderName string
+	Name string
 }
 
-func (b0 CardData_builder) Build() *CardData {
-	m0 := &CardData{}
+func (b0 GetRecordRequest_builder) Build() *GetRecordRequest {
+	m0 := &GetRecordRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Name = b.Name
-	x.xxx_hidden_CardNumber = b.CardNumber
-	x.xxx_hidden_ExpirationDate = b.ExpirationDate
-	x.xxx_hidden_Cvv = b.Cvv
-	x.xxx_hidden_CardholderName = b.CardholderName
 	return m0
 }
 
-// Универсальный пустой ответ для успешного выполнения
 type SaveResponse struct {
 	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -362,7 +190,7 @@ type SaveResponse struct {
 
 func (x *SaveResponse) Reset() {
 	*x = SaveResponse{}
-	mi := &file_gophkeeper_proto_msgTypes[4]
+	mi := &file_gophkeeper_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -374,7 +202,7 @@ func (x *SaveResponse) String() string {
 func (*SaveResponse) ProtoMessage() {}
 
 func (x *SaveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[4]
+	mi := &file_gophkeeper_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -401,50 +229,37 @@ var File_gophkeeper_proto protoreflect.FileDescriptor
 
 const file_gophkeeper_proto_rawDesc = "" +
 	"\n" +
-	"\x10gophkeeper.proto\x12\ttransport\"#\n" +
-	"\rDeleteRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"2\n" +
-	"\bTextData\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
-	"\x04text\x18\x02 \x01(\tR\x04text\"Q\n" +
-	"\n" +
-	"BinaryData\x12\x12\n" +
+	"\x10gophkeeper.proto\x12\ttransport\"p\n" +
+	"\x06Record\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
-	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x12\n" +
-	"\x04data\x18\x03 \x01(\fR\x04data\"\xa3\x01\n" +
-	"\bCardData\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1f\n" +
-	"\vcard_number\x18\x02 \x01(\tR\n" +
-	"cardNumber\x12'\n" +
-	"\x0fexpiration_date\x18\x03 \x01(\tR\x0eexpirationDate\x12\x10\n" +
-	"\x03cvv\x18\x04 \x01(\tR\x03cvv\x12'\n" +
-	"\x0fcardholder_name\x18\x05 \x01(\tR\x0ecardholderName\"\x0e\n" +
-	"\fSaveResponse2\x8b\x02\n" +
+	"\tdata_type\x18\x02 \x01(\tR\bdataType\x12\x1f\n" +
+	"\vsecure_data\x18\x03 \x01(\fR\n" +
+	"secureData\x12\x14\n" +
+	"\x05nonce\x18\x04 \x01(\fR\x05nonce\"&\n" +
+	"\x10GetRecordRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\x0e\n" +
+	"\fSaveResponse2\xcf\x01\n" +
 	"\x10TransportService\x128\n" +
-	"\bSaveText\x12\x13.transport.TextData\x1a\x17.transport.SaveResponse\x128\n" +
-	"\bSaveCard\x12\x13.transport.CardData\x1a\x17.transport.SaveResponse\x12:\n" +
-	"\bSaveFile\x12\x15.transport.BinaryData\x1a\x17.transport.SaveResponse\x12G\n" +
-	"\x12DeleteEntityByName\x12\x18.transport.DeleteRequest\x1a\x17.transport.SaveResponseB\x14Z\x12internal/shared/pbb\x06proto3"
+	"\n" +
+	"SaveRecord\x12\x11.transport.Record\x1a\x17.transport.SaveResponse\x12;\n" +
+	"\tGetRecord\x12\x1b.transport.GetRecordRequest\x1a\x11.transport.Record\x12D\n" +
+	"\fDeleteRecord\x12\x1b.transport.GetRecordRequest\x1a\x17.transport.SaveResponseB\aZ\x05./;pbb\x06proto3"
 
-var file_gophkeeper_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_gophkeeper_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_gophkeeper_proto_goTypes = []any{
-	(*DeleteRequest)(nil), // 0: transport.DeleteRequest
-	(*TextData)(nil),      // 1: transport.TextData
-	(*BinaryData)(nil),    // 2: transport.BinaryData
-	(*CardData)(nil),      // 3: transport.CardData
-	(*SaveResponse)(nil),  // 4: transport.SaveResponse
+	(*Record)(nil),           // 0: transport.Record
+	(*GetRecordRequest)(nil), // 1: transport.GetRecordRequest
+	(*SaveResponse)(nil),     // 2: transport.SaveResponse
 }
 var file_gophkeeper_proto_depIdxs = []int32{
-	1, // 0: transport.TransportService.SaveText:input_type -> transport.TextData
-	3, // 1: transport.TransportService.SaveCard:input_type -> transport.CardData
-	2, // 2: transport.TransportService.SaveFile:input_type -> transport.BinaryData
-	0, // 3: transport.TransportService.DeleteEntityByName:input_type -> transport.DeleteRequest
-	4, // 4: transport.TransportService.SaveText:output_type -> transport.SaveResponse
-	4, // 5: transport.TransportService.SaveCard:output_type -> transport.SaveResponse
-	4, // 6: transport.TransportService.SaveFile:output_type -> transport.SaveResponse
-	4, // 7: transport.TransportService.DeleteEntityByName:output_type -> transport.SaveResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
+	0, // 0: transport.TransportService.SaveRecord:input_type -> transport.Record
+	1, // 1: transport.TransportService.GetRecord:input_type -> transport.GetRecordRequest
+	1, // 2: transport.TransportService.DeleteRecord:input_type -> transport.GetRecordRequest
+	2, // 3: transport.TransportService.SaveRecord:output_type -> transport.SaveResponse
+	0, // 4: transport.TransportService.GetRecord:output_type -> transport.Record
+	2, // 5: transport.TransportService.DeleteRecord:output_type -> transport.SaveResponse
+	3, // [3:6] is the sub-list for method output_type
+	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -461,7 +276,7 @@ func file_gophkeeper_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gophkeeper_proto_rawDesc), len(file_gophkeeper_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

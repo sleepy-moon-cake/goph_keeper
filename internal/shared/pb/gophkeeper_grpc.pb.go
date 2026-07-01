@@ -19,20 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TransportService_SaveText_FullMethodName           = "/transport.TransportService/SaveText"
-	TransportService_SaveCard_FullMethodName           = "/transport.TransportService/SaveCard"
-	TransportService_SaveFile_FullMethodName           = "/transport.TransportService/SaveFile"
-	TransportService_DeleteEntityByName_FullMethodName = "/transport.TransportService/DeleteEntityByName"
+	TransportService_SaveRecord_FullMethodName   = "/transport.TransportService/SaveRecord"
+	TransportService_GetRecord_FullMethodName    = "/transport.TransportService/GetRecord"
+	TransportService_DeleteRecord_FullMethodName = "/transport.TransportService/DeleteRecord"
 )
 
 // TransportServiceClient is the client API for TransportService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransportServiceClient interface {
-	SaveText(ctx context.Context, in *TextData, opts ...grpc.CallOption) (*SaveResponse, error)
-	SaveCard(ctx context.Context, in *CardData, opts ...grpc.CallOption) (*SaveResponse, error)
-	SaveFile(ctx context.Context, in *BinaryData, opts ...grpc.CallOption) (*SaveResponse, error)
-	DeleteEntityByName(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*SaveResponse, error)
+	// Универсальный метод: бэкенду всё равно, текстовый это пароль, карта или файл
+	SaveRecord(ctx context.Context, in *Record, opts ...grpc.CallOption) (*SaveResponse, error)
+	GetRecord(ctx context.Context, in *GetRecordRequest, opts ...grpc.CallOption) (*Record, error)
+	DeleteRecord(ctx context.Context, in *GetRecordRequest, opts ...grpc.CallOption) (*SaveResponse, error)
 }
 
 type transportServiceClient struct {
@@ -43,40 +42,30 @@ func NewTransportServiceClient(cc grpc.ClientConnInterface) TransportServiceClie
 	return &transportServiceClient{cc}
 }
 
-func (c *transportServiceClient) SaveText(ctx context.Context, in *TextData, opts ...grpc.CallOption) (*SaveResponse, error) {
+func (c *transportServiceClient) SaveRecord(ctx context.Context, in *Record, opts ...grpc.CallOption) (*SaveResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SaveResponse)
-	err := c.cc.Invoke(ctx, TransportService_SaveText_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, TransportService_SaveRecord_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *transportServiceClient) SaveCard(ctx context.Context, in *CardData, opts ...grpc.CallOption) (*SaveResponse, error) {
+func (c *transportServiceClient) GetRecord(ctx context.Context, in *GetRecordRequest, opts ...grpc.CallOption) (*Record, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SaveResponse)
-	err := c.cc.Invoke(ctx, TransportService_SaveCard_FullMethodName, in, out, cOpts...)
+	out := new(Record)
+	err := c.cc.Invoke(ctx, TransportService_GetRecord_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *transportServiceClient) SaveFile(ctx context.Context, in *BinaryData, opts ...grpc.CallOption) (*SaveResponse, error) {
+func (c *transportServiceClient) DeleteRecord(ctx context.Context, in *GetRecordRequest, opts ...grpc.CallOption) (*SaveResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SaveResponse)
-	err := c.cc.Invoke(ctx, TransportService_SaveFile_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *transportServiceClient) DeleteEntityByName(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*SaveResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SaveResponse)
-	err := c.cc.Invoke(ctx, TransportService_DeleteEntityByName_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, TransportService_DeleteRecord_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,10 +76,10 @@ func (c *transportServiceClient) DeleteEntityByName(ctx context.Context, in *Del
 // All implementations must embed UnimplementedTransportServiceServer
 // for forward compatibility.
 type TransportServiceServer interface {
-	SaveText(context.Context, *TextData) (*SaveResponse, error)
-	SaveCard(context.Context, *CardData) (*SaveResponse, error)
-	SaveFile(context.Context, *BinaryData) (*SaveResponse, error)
-	DeleteEntityByName(context.Context, *DeleteRequest) (*SaveResponse, error)
+	// Универсальный метод: бэкенду всё равно, текстовый это пароль, карта или файл
+	SaveRecord(context.Context, *Record) (*SaveResponse, error)
+	GetRecord(context.Context, *GetRecordRequest) (*Record, error)
+	DeleteRecord(context.Context, *GetRecordRequest) (*SaveResponse, error)
 	mustEmbedUnimplementedTransportServiceServer()
 }
 
@@ -101,17 +90,14 @@ type TransportServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTransportServiceServer struct{}
 
-func (UnimplementedTransportServiceServer) SaveText(context.Context, *TextData) (*SaveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method SaveText not implemented")
+func (UnimplementedTransportServiceServer) SaveRecord(context.Context, *Record) (*SaveResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SaveRecord not implemented")
 }
-func (UnimplementedTransportServiceServer) SaveCard(context.Context, *CardData) (*SaveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method SaveCard not implemented")
+func (UnimplementedTransportServiceServer) GetRecord(context.Context, *GetRecordRequest) (*Record, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRecord not implemented")
 }
-func (UnimplementedTransportServiceServer) SaveFile(context.Context, *BinaryData) (*SaveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method SaveFile not implemented")
-}
-func (UnimplementedTransportServiceServer) DeleteEntityByName(context.Context, *DeleteRequest) (*SaveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteEntityByName not implemented")
+func (UnimplementedTransportServiceServer) DeleteRecord(context.Context, *GetRecordRequest) (*SaveResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteRecord not implemented")
 }
 func (UnimplementedTransportServiceServer) mustEmbedUnimplementedTransportServiceServer() {}
 func (UnimplementedTransportServiceServer) testEmbeddedByValue()                          {}
@@ -134,74 +120,56 @@ func RegisterTransportServiceServer(s grpc.ServiceRegistrar, srv TransportServic
 	s.RegisterService(&TransportService_ServiceDesc, srv)
 }
 
-func _TransportService_SaveText_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TextData)
+func _TransportService_SaveRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Record)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TransportServiceServer).SaveText(ctx, in)
+		return srv.(TransportServiceServer).SaveRecord(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TransportService_SaveText_FullMethodName,
+		FullMethod: TransportService_SaveRecord_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransportServiceServer).SaveText(ctx, req.(*TextData))
+		return srv.(TransportServiceServer).SaveRecord(ctx, req.(*Record))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TransportService_SaveCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CardData)
+func _TransportService_GetRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRecordRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TransportServiceServer).SaveCard(ctx, in)
+		return srv.(TransportServiceServer).GetRecord(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TransportService_SaveCard_FullMethodName,
+		FullMethod: TransportService_GetRecord_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransportServiceServer).SaveCard(ctx, req.(*CardData))
+		return srv.(TransportServiceServer).GetRecord(ctx, req.(*GetRecordRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TransportService_SaveFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BinaryData)
+func _TransportService_DeleteRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRecordRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TransportServiceServer).SaveFile(ctx, in)
+		return srv.(TransportServiceServer).DeleteRecord(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TransportService_SaveFile_FullMethodName,
+		FullMethod: TransportService_DeleteRecord_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransportServiceServer).SaveFile(ctx, req.(*BinaryData))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TransportService_DeleteEntityByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TransportServiceServer).DeleteEntityByName(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TransportService_DeleteEntityByName_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransportServiceServer).DeleteEntityByName(ctx, req.(*DeleteRequest))
+		return srv.(TransportServiceServer).DeleteRecord(ctx, req.(*GetRecordRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -214,20 +182,16 @@ var TransportService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TransportServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SaveText",
-			Handler:    _TransportService_SaveText_Handler,
+			MethodName: "SaveRecord",
+			Handler:    _TransportService_SaveRecord_Handler,
 		},
 		{
-			MethodName: "SaveCard",
-			Handler:    _TransportService_SaveCard_Handler,
+			MethodName: "GetRecord",
+			Handler:    _TransportService_GetRecord_Handler,
 		},
 		{
-			MethodName: "SaveFile",
-			Handler:    _TransportService_SaveFile_Handler,
-		},
-		{
-			MethodName: "DeleteEntityByName",
-			Handler:    _TransportService_DeleteEntityByName_Handler,
+			MethodName: "DeleteRecord",
+			Handler:    _TransportService_DeleteRecord_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

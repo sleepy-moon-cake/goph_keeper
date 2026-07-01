@@ -18,3 +18,10 @@ type CardData struct {
 	CVV            string `json:"cvv"`
 	CardholderName string `json:"cardholder_name"`
 }
+
+type EncryptedRecord struct {
+	Name     string `json:"name"`      // Имя записи (например, "My Visa")
+	DataType string `json:"data_type"` // "text", "card" или "file"
+	Payload  []byte `json:"payload"`   // ЗАШИФРОВАННЫЕ байты исходной структуры
+	Nonce    []byte `json:"nonce"`     // Вектор инициализации для AES-GCM
+}

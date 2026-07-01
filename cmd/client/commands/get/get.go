@@ -1,4 +1,4 @@
-package delete
+package get
 
 import (
 	"fmt"
@@ -9,11 +9,10 @@ import (
 
 var name string
 
-func NewDeleteCmd(service interfaces.TransportService) *cobra.Command {
-
-	var deleteCmd = &cobra.Command{
-		Use:   "delete",
-		Short: "delete entity by name",
+func NewGetCmd(service interfaces.TransportService) *cobra.Command {
+	var getCmd = &cobra.Command{
+		Use:   "get",
+		Short: "get entity by name",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
@@ -21,7 +20,7 @@ func NewDeleteCmd(service interfaces.TransportService) *cobra.Command {
 				return fmt.Errorf("name is required param")
 			}
 
-			if err := service.DeleteEntityByName(ctx, name); err != nil {
+			if _, err := service.GetEntityByName(ctx, name); err != nil {
 				return fmt.Errorf("delete entity:%w", err)
 			}
 
@@ -29,7 +28,7 @@ func NewDeleteCmd(service interfaces.TransportService) *cobra.Command {
 		},
 	}
 
-	deleteCmd.Flags().StringVar(&name, "name", "", "pass name")
+	getCmd.Flags().StringVar(&name, "name", "", "pass name")
 
-	return deleteCmd
+	return getCmd
 }

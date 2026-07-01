@@ -1,42 +1,24 @@
 syntax = "proto3";
 
 package transport;
-
-option go_package = "internal/shared/pb";
+option go_package = "./;pb";
 
 service TransportService {
-  rpc SaveText (TextData) returns (SaveResponse);
-  rpc SaveCard (CardData) returns (SaveResponse);
-  rpc SaveFile (BinaryData) returns (SaveResponse);
-  rpc DeleteEntityByName(DeleteRequest)  returns (SaveResponse);
+  // Универсальный метод: бэкенду всё равно, текстовый это пароль, карта или файл
+  rpc SaveRecord (Record) returns (SaveResponse);
+  rpc GetRecord (GetRecordRequest) returns (Record);
+  rpc DeleteRecord (GetRecordRequest) returns (SaveResponse);
 }
 
-// Запрос для удаления, содержащий имя сущности
-message DeleteRequest {
+message Record {
+  string name = 1;         // Уникальный ключ/название (можно не шифровать для поиска)
+  string data_type = 2;    // "text", "card" или "file" (чтобы клиент знал, как отобразить после расшифровки)
+  bytes secure_data = 3;   // ЗАШИФРОВАННЫЕ НА КЛИЕНТЕ БАЙТЫ (криптограмма)
+  bytes nonce = 4;         // Вектор инициализации (IV) для AES, необходимый для расшифровки
+}
+
+message GetRecordRequest {
   string name = 1;
 }
 
-// Модель для текстовых данных
-message TextData {
-  string name = 1;
-  string text = 2;
-}
-
-// Модель для бинарных данных (файлов)
-message BinaryData {
-  string name = 1;
-  string file_name = 2;
-  bytes data = 3; // Передается эффективно без Base64 кодирования
-}
-
-// Модель для банковских карт
-message CardData {
-  string name = 1;
-  string card_number = 2;
-  string expiration_date = 3;
-  string cvv = 4;
-  string cardholder_name = 5;
-}
-
-// Универсальный пустой ответ для успешного выполнения
 message SaveResponse {}

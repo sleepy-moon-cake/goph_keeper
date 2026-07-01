@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"goph_keeper/cmd/client/commands/add"
 	"goph_keeper/cmd/client/commands/delete"
+	"goph_keeper/cmd/client/commands/get"
 	"goph_keeper/internal/client/transport"
 
 	"github.com/spf13/cobra"
@@ -28,10 +29,14 @@ func Execute(ctx context.Context) error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("create trasport service:%w", err)
+		return fmt.Errorf("create transport service:%w", err)
 	}
 
-	rootCmd.AddCommand(add.NewAddCommand(ts), delete.NewDeleteCmd(ts))
+	rootCmd.AddCommand(
+		add.NewAddCommand(ts),
+		delete.NewDeleteCmd(ts),
+		get.NewGetCmd(ts),
+	)
 
 	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		return fmt.Errorf("execute cobra:%w", err)
