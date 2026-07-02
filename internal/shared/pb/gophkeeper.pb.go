@@ -20,6 +20,134 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type AuthRequest struct {
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Username     string                 `protobuf:"bytes,1,opt,name=username,proto3"`
+	xxx_hidden_PasswordHash string                 `protobuf:"bytes,2,opt,name=password_hash,json=passwordHash,proto3"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *AuthRequest) Reset() {
+	*x = AuthRequest{}
+	mi := &file_gophkeeper_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthRequest) ProtoMessage() {}
+
+func (x *AuthRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AuthRequest) GetUsername() string {
+	if x != nil {
+		return x.xxx_hidden_Username
+	}
+	return ""
+}
+
+func (x *AuthRequest) GetPasswordHash() string {
+	if x != nil {
+		return x.xxx_hidden_PasswordHash
+	}
+	return ""
+}
+
+func (x *AuthRequest) SetUsername(v string) {
+	x.xxx_hidden_Username = v
+}
+
+func (x *AuthRequest) SetPasswordHash(v string) {
+	x.xxx_hidden_PasswordHash = v
+}
+
+type AuthRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Username     string
+	PasswordHash string
+}
+
+func (b0 AuthRequest_builder) Build() *AuthRequest {
+	m0 := &AuthRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Username = b.Username
+	x.xxx_hidden_PasswordHash = b.PasswordHash
+	return m0
+}
+
+type AuthResponse struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Token string                 `protobuf:"bytes,1,opt,name=token,proto3"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *AuthResponse) Reset() {
+	*x = AuthResponse{}
+	mi := &file_gophkeeper_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthResponse) ProtoMessage() {}
+
+func (x *AuthResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_gophkeeper_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AuthResponse) GetToken() string {
+	if x != nil {
+		return x.xxx_hidden_Token
+	}
+	return ""
+}
+
+func (x *AuthResponse) SetToken(v string) {
+	x.xxx_hidden_Token = v
+}
+
+type AuthResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Token string
+}
+
+func (b0 AuthResponse_builder) Build() *AuthResponse {
+	m0 := &AuthResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Token = b.Token
+	return m0
+}
+
 type ListRecordsRequest struct {
 	state            protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Limit int32                  `protobuf:"varint,1,opt,name=limit,proto3"`
@@ -29,7 +157,7 @@ type ListRecordsRequest struct {
 
 func (x *ListRecordsRequest) Reset() {
 	*x = ListRecordsRequest{}
-	mi := &file_gophkeeper_proto_msgTypes[0]
+	mi := &file_gophkeeper_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -41,7 +169,7 @@ func (x *ListRecordsRequest) String() string {
 func (*ListRecordsRequest) ProtoMessage() {}
 
 func (x *ListRecordsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[0]
+	mi := &file_gophkeeper_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -86,7 +214,7 @@ type ListRecordsResponse struct {
 
 func (x *ListRecordsResponse) Reset() {
 	*x = ListRecordsResponse{}
-	mi := &file_gophkeeper_proto_msgTypes[1]
+	mi := &file_gophkeeper_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -98,7 +226,7 @@ func (x *ListRecordsResponse) String() string {
 func (*ListRecordsResponse) ProtoMessage() {}
 
 func (x *ListRecordsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[1]
+	mi := &file_gophkeeper_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -148,7 +276,7 @@ type Record struct {
 
 func (x *Record) Reset() {
 	*x = Record{}
-	mi := &file_gophkeeper_proto_msgTypes[2]
+	mi := &file_gophkeeper_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -160,7 +288,7 @@ func (x *Record) String() string {
 func (*Record) ProtoMessage() {}
 
 func (x *Record) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[2]
+	mi := &file_gophkeeper_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -250,7 +378,7 @@ type GetRecordRequest struct {
 
 func (x *GetRecordRequest) Reset() {
 	*x = GetRecordRequest{}
-	mi := &file_gophkeeper_proto_msgTypes[3]
+	mi := &file_gophkeeper_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -262,7 +390,7 @@ func (x *GetRecordRequest) String() string {
 func (*GetRecordRequest) ProtoMessage() {}
 
 func (x *GetRecordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[3]
+	mi := &file_gophkeeper_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -306,7 +434,7 @@ type SaveResponse struct {
 
 func (x *SaveResponse) Reset() {
 	*x = SaveResponse{}
-	mi := &file_gophkeeper_proto_msgTypes[4]
+	mi := &file_gophkeeper_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -318,7 +446,7 @@ func (x *SaveResponse) String() string {
 func (*SaveResponse) ProtoMessage() {}
 
 func (x *SaveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[4]
+	mi := &file_gophkeeper_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -352,7 +480,7 @@ type ListRecordsResponse_RecordMeta struct {
 
 func (x *ListRecordsResponse_RecordMeta) Reset() {
 	*x = ListRecordsResponse_RecordMeta{}
-	mi := &file_gophkeeper_proto_msgTypes[5]
+	mi := &file_gophkeeper_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -364,7 +492,7 @@ func (x *ListRecordsResponse_RecordMeta) String() string {
 func (*ListRecordsResponse_RecordMeta) ProtoMessage() {}
 
 func (x *ListRecordsResponse_RecordMeta) ProtoReflect() protoreflect.Message {
-	mi := &file_gophkeeper_proto_msgTypes[5]
+	mi := &file_gophkeeper_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -417,7 +545,12 @@ var File_gophkeeper_proto protoreflect.FileDescriptor
 
 const file_gophkeeper_proto_rawDesc = "" +
 	"\n" +
-	"\x10gophkeeper.proto\x12\ttransport\"*\n" +
+	"\x10gophkeeper.proto\x12\ttransport\"N\n" +
+	"\vAuthRequest\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12#\n" +
+	"\rpassword_hash\x18\x02 \x01(\tR\fpasswordHash\"$\n" +
+	"\fAuthResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"*\n" +
 	"\x12ListRecordsRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x05R\x05limit\"\x99\x01\n" +
 	"\x13ListRecordsResponse\x12C\n" +
@@ -434,35 +567,43 @@ const file_gophkeeper_proto_rawDesc = "" +
 	"\x05nonce\x18\x04 \x01(\fR\x05nonce\"&\n" +
 	"\x10GetRecordRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"\x0e\n" +
-	"\fSaveResponse2\x9d\x02\n" +
-	"\x10TransportService\x128\n" +
+	"\fSaveResponse2\x94\x03\n" +
+	"\x10TransportService\x12;\n" +
+	"\bRegister\x12\x16.transport.AuthRequest\x1a\x17.transport.AuthResponse\x128\n" +
+	"\x05Login\x12\x16.transport.AuthRequest\x1a\x17.transport.AuthResponse\x128\n" +
 	"\n" +
 	"SaveRecord\x12\x11.transport.Record\x1a\x17.transport.SaveResponse\x12;\n" +
 	"\tGetRecord\x12\x1b.transport.GetRecordRequest\x1a\x11.transport.Record\x12D\n" +
 	"\fDeleteRecord\x12\x1b.transport.GetRecordRequest\x1a\x17.transport.SaveResponse\x12L\n" +
 	"\vListRecords\x12\x1d.transport.ListRecordsRequest\x1a\x1e.transport.ListRecordsResponseB\aZ\x05./;pbb\x06proto3"
 
-var file_gophkeeper_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_gophkeeper_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_gophkeeper_proto_goTypes = []any{
-	(*ListRecordsRequest)(nil),             // 0: transport.ListRecordsRequest
-	(*ListRecordsResponse)(nil),            // 1: transport.ListRecordsResponse
-	(*Record)(nil),                         // 2: transport.Record
-	(*GetRecordRequest)(nil),               // 3: transport.GetRecordRequest
-	(*SaveResponse)(nil),                   // 4: transport.SaveResponse
-	(*ListRecordsResponse_RecordMeta)(nil), // 5: transport.ListRecordsResponse.RecordMeta
+	(*AuthRequest)(nil),                    // 0: transport.AuthRequest
+	(*AuthResponse)(nil),                   // 1: transport.AuthResponse
+	(*ListRecordsRequest)(nil),             // 2: transport.ListRecordsRequest
+	(*ListRecordsResponse)(nil),            // 3: transport.ListRecordsResponse
+	(*Record)(nil),                         // 4: transport.Record
+	(*GetRecordRequest)(nil),               // 5: transport.GetRecordRequest
+	(*SaveResponse)(nil),                   // 6: transport.SaveResponse
+	(*ListRecordsResponse_RecordMeta)(nil), // 7: transport.ListRecordsResponse.RecordMeta
 }
 var file_gophkeeper_proto_depIdxs = []int32{
-	5, // 0: transport.ListRecordsResponse.records:type_name -> transport.ListRecordsResponse.RecordMeta
-	2, // 1: transport.TransportService.SaveRecord:input_type -> transport.Record
-	3, // 2: transport.TransportService.GetRecord:input_type -> transport.GetRecordRequest
-	3, // 3: transport.TransportService.DeleteRecord:input_type -> transport.GetRecordRequest
-	0, // 4: transport.TransportService.ListRecords:input_type -> transport.ListRecordsRequest
-	4, // 5: transport.TransportService.SaveRecord:output_type -> transport.SaveResponse
-	2, // 6: transport.TransportService.GetRecord:output_type -> transport.Record
-	4, // 7: transport.TransportService.DeleteRecord:output_type -> transport.SaveResponse
-	1, // 8: transport.TransportService.ListRecords:output_type -> transport.ListRecordsResponse
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
+	7, // 0: transport.ListRecordsResponse.records:type_name -> transport.ListRecordsResponse.RecordMeta
+	0, // 1: transport.TransportService.Register:input_type -> transport.AuthRequest
+	0, // 2: transport.TransportService.Login:input_type -> transport.AuthRequest
+	4, // 3: transport.TransportService.SaveRecord:input_type -> transport.Record
+	5, // 4: transport.TransportService.GetRecord:input_type -> transport.GetRecordRequest
+	5, // 5: transport.TransportService.DeleteRecord:input_type -> transport.GetRecordRequest
+	2, // 6: transport.TransportService.ListRecords:input_type -> transport.ListRecordsRequest
+	1, // 7: transport.TransportService.Register:output_type -> transport.AuthResponse
+	1, // 8: transport.TransportService.Login:output_type -> transport.AuthResponse
+	6, // 9: transport.TransportService.SaveRecord:output_type -> transport.SaveResponse
+	4, // 10: transport.TransportService.GetRecord:output_type -> transport.Record
+	6, // 11: transport.TransportService.DeleteRecord:output_type -> transport.SaveResponse
+	3, // 12: transport.TransportService.ListRecords:output_type -> transport.ListRecordsResponse
+	7, // [7:13] is the sub-list for method output_type
+	1, // [1:7] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -479,7 +620,7 @@ func file_gophkeeper_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gophkeeper_proto_rawDesc), len(file_gophkeeper_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

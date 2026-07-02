@@ -19,6 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	TransportService_Register_FullMethodName     = "/transport.TransportService/Register"
+	TransportService_Login_FullMethodName        = "/transport.TransportService/Login"
 	TransportService_SaveRecord_FullMethodName   = "/transport.TransportService/SaveRecord"
 	TransportService_GetRecord_FullMethodName    = "/transport.TransportService/GetRecord"
 	TransportService_DeleteRecord_FullMethodName = "/transport.TransportService/DeleteRecord"
@@ -29,6 +31,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransportServiceClient interface {
+	Register(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
+	Login(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	// Универсальный метод: бэкенду всё равно, текстовый это пароль, карта или файл
 	SaveRecord(ctx context.Context, in *Record, opts ...grpc.CallOption) (*SaveResponse, error)
 	GetRecord(ctx context.Context, in *GetRecordRequest, opts ...grpc.CallOption) (*Record, error)
@@ -42,6 +46,26 @@ type transportServiceClient struct {
 
 func NewTransportServiceClient(cc grpc.ClientConnInterface) TransportServiceClient {
 	return &transportServiceClient{cc}
+}
+
+func (c *transportServiceClient) Register(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuthResponse)
+	err := c.cc.Invoke(ctx, TransportService_Register_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *transportServiceClient) Login(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuthResponse)
+	err := c.cc.Invoke(ctx, TransportService_Login_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *transportServiceClient) SaveRecord(ctx context.Context, in *Record, opts ...grpc.CallOption) (*SaveResponse, error) {
@@ -88,6 +112,8 @@ func (c *transportServiceClient) ListRecords(ctx context.Context, in *ListRecord
 // All implementations must embed UnimplementedTransportServiceServer
 // for forward compatibility.
 type TransportServiceServer interface {
+	Register(context.Context, *AuthRequest) (*AuthResponse, error)
+	Login(context.Context, *AuthRequest) (*AuthResponse, error)
 	// Универсальный метод: бэкенду всё равно, текстовый это пароль, карта или файл
 	SaveRecord(context.Context, *Record) (*SaveResponse, error)
 	GetRecord(context.Context, *GetRecordRequest) (*Record, error)
@@ -103,6 +129,12 @@ type TransportServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTransportServiceServer struct{}
 
+func (UnimplementedTransportServiceServer) Register(context.Context, *AuthRequest) (*AuthResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedTransportServiceServer) Login(context.Context, *AuthRequest) (*AuthResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Login not implemented")
+}
 func (UnimplementedTransportServiceServer) SaveRecord(context.Context, *Record) (*SaveResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SaveRecord not implemented")
 }
@@ -134,6 +166,42 @@ func RegisterTransportServiceServer(s grpc.ServiceRegistrar, srv TransportServic
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&TransportService_ServiceDesc, srv)
+}
+
+func _TransportService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransportServiceServer).Register(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransportService_Register_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransportServiceServer).Register(ctx, req.(*AuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TransportService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransportServiceServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransportService_Login_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransportServiceServer).Login(ctx, req.(*AuthRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _TransportService_SaveRecord_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -215,6 +283,14 @@ var TransportService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "transport.TransportService",
 	HandlerType: (*TransportServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Register",
+			Handler:    _TransportService_Register_Handler,
+		},
+		{
+			MethodName: "Login",
+			Handler:    _TransportService_Login_Handler,
+		},
 		{
 			MethodName: "SaveRecord",
 			Handler:    _TransportService_SaveRecord_Handler,

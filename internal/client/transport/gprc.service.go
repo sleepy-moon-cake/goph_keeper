@@ -29,12 +29,30 @@ func getEncryptedPayload[T models.CardData | models.TextData | models.BinaryData
 		return nil, fmt.Errorf("failed to marshal data: %w", err)
 	}
 
-	// Ваша временная хэш-заглушка вместо полноценного AES-GCM
 	h := sha256.New()
 	h.Write(rawBytes)
 	dst := h.Sum(nil)
 
 	return dst, nil
+}
+
+func (t *GPRCTransportService) Login(ctx context.Context, name string, password string) (string, error) {
+	client, err := t.getClient()
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+
+	payload := &pb.AuthRequest{}
+	payload.SetUsername(name)
+	payload.SetPasswordHash(password)
+
+	resp, err := client.Login(ctx, payload)
+	if err != nil {
+		return "", fmt.Errorf("login grpc: %w", err)
+	}
+
+	return resp.GetToken(), nil
 }
 
 func (t *GPRCTransportService) ListRecords(ctx context.Context, limit int) ([]models.RecordMeta, error) {

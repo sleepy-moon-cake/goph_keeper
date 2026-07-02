@@ -30,3 +30,12 @@ type RecordMeta struct {
 	Name     string `json:"name"`      // Имя секреты (например, "My Visa")
 	DataType string `json:"data_type"` // Тип секрета (например, "card")
 }
+
+type AuthRequest struct {
+	Name         string `json:"name"`
+	PasswordHash string `json:"password_hash"`
+}
+
+type AuthResponse struct {
+	Session string `json:"session"`
+}

@@ -24,6 +24,43 @@ func NewHttpTransportService(addr string) *HttpTransportService {
 	}
 }
 
+func (t *HttpTransportService) Login(ctx context.Context, name string, password string) (string, error) {
+	body := models.AuthRequest{Name: name, PasswordHash: password}
+
+	var buffer bytes.Buffer
+
+	if err := json.NewEncoder(&buffer).Encode(body); err != nil {
+		return "", fmt.Errorf("failed to encode: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, t.addr, &buffer)
+
+	if err != nil {
+		return "", fmt.Errorf("failed to form request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := t.httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("http request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return "", fmt.Errorf("bad status code: %d", resp.StatusCode)
+	}
+
+	var session models.AuthResponse
+
+	if err := json.NewDecoder(resp.Body).Decode(&session); err != nil {
+		slog.Error("Login error: parsing body")
+		return "", fmt.Errorf("cant parse body: %w", err)
+	}
+
+	return session.Session, nil
+}
+
 func (t *HttpTransportService) ListRecords(ctx context.Context, limit int) ([]models.RecordMeta, error) {
 	fullURL := fmt.Sprintf("%s?limit=%d", t.addr, limit)
 
