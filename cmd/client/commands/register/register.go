@@ -1,4 +1,4 @@
-package login
+package register
 
 import (
 	"bufio"
@@ -14,12 +14,14 @@ import (
 	"golang.org/x/term"
 )
 
-func NewLoginCmd(service interfaces.TransportService) *cobra.Command {
-	var loginCmd = &cobra.Command{
-		Use:   "login",
-		Short: "authorization",
+func NewRegisterCmd(service interfaces.TransportService) *cobra.Command {
+	var registerCmd = &cobra.Command{
+		Use:   "register",
+		Short: "registration",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
+
+			fmt.Println("Registration:::::")
 
 			fmt.Print("Enter username: ")
 			scanner := bufio.NewScanner(os.Stdin)
@@ -27,28 +29,39 @@ func NewLoginCmd(service interfaces.TransportService) *cobra.Command {
 			if scanner.Scan() {
 				name = strings.TrimSpace(scanner.Text())
 			}
-
-			if name == "" {
+			if len(name) == 0 {
 				return fmt.Errorf("username cannot be empty")
 			}
 
 			fmt.Print("Enter password: ")
 			bytePassword, err := term.ReadPassword(int(syscall.Stdin))
 			fmt.Println()
-
 			if err != nil {
 				return fmt.Errorf("failed to read password: %w", err)
 			}
+			password := string(bytePassword)
 
-			if len(bytePassword) == 0 {
+			if len(password) == 0 {
 				return fmt.Errorf("password cannot be empty")
 			}
 
+			fmt.Print("Enter confirm password: ")
+			byteConfirmPassword, err := term.ReadPassword(int(syscall.Stdin))
+			fmt.Println()
+			if err != nil {
+				return fmt.Errorf("failed to read confirmation: %w", err)
+			}
+			confirmPassword := string(byteConfirmPassword)
+
+			if password != confirmPassword {
+				return fmt.Errorf("passwords are not equal")
+			}
+
 			h := sha256.New()
-			h.Write(bytePassword)
+			h.Write([]byte(password))
 			passwordHash := fmt.Sprintf("%x", h.Sum(nil))
 
-			token, err := service.Login(ctx, name, passwordHash)
+			token, err := service.Register(ctx, name, passwordHash)
 			if err != nil {
 				return fmt.Errorf("login command: %w", err)
 			}
@@ -57,10 +70,10 @@ func NewLoginCmd(service interfaces.TransportService) *cobra.Command {
 				return fmt.Errorf("failed to save session: %w", err)
 			}
 
-			fmt.Println("Successfully logged in!")
+			fmt.Println("Successfully registered!")
 			return nil
 		},
 	}
 
-	return loginCmd
+	return registerCmd
 }

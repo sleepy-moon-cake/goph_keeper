@@ -7,6 +7,8 @@ import (
 	"goph_keeper/cmd/client/commands/delete"
 	"goph_keeper/cmd/client/commands/get"
 	"goph_keeper/cmd/client/commands/list"
+	"goph_keeper/cmd/client/commands/login"
+	"goph_keeper/cmd/client/commands/register"
 	"goph_keeper/internal/client/transport"
 
 	"github.com/spf13/cobra"
@@ -34,6 +36,8 @@ func Execute(ctx context.Context) error {
 	}
 
 	rootCmd.AddCommand(
+		register.NewRegisterCmd(ts),
+		login.NewLoginCmd(ts),
 		add.NewAddCommand(ts),
 		delete.NewDeleteCmd(ts),
 		get.NewGetCmd(ts),

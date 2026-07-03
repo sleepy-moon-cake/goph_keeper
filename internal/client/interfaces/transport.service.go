@@ -13,4 +13,5 @@ type TransportService interface {
 	GetEntityByName(ctx context.Context, name string) (*models.EncryptedRecord, error)
 	ListRecords(ctx context.Context, limit int) ([]models.RecordMeta, error)
 	Login(ctx context.Context, name string, password string) (string, error)
+	Register(ctx context.Context, name string, password string) (string, error)
 }

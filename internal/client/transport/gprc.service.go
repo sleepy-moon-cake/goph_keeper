@@ -36,6 +36,25 @@ func getEncryptedPayload[T models.CardData | models.TextData | models.BinaryData
 	return dst, nil
 }
 
+func (t *GPRCTransportService) Register(ctx context.Context, name string, password string) (string, error) {
+	client, err := t.getClient()
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+
+	payload := &pb.AuthRequest{}
+	payload.SetUsername(name)
+	payload.SetPasswordHash(password)
+
+	resp, err := client.Register(ctx, payload)
+	if err != nil {
+		return "", fmt.Errorf("login grpc: %w", err)
+	}
+
+	return resp.GetToken(), nil
+}
+
 func (t *GPRCTransportService) Login(ctx context.Context, name string, password string) (string, error) {
 	client, err := t.getClient()
 	if err != nil {
