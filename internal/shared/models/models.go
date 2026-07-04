@@ -39,3 +39,7 @@ type AuthRequest struct {
 type AuthResponse struct {
 	Session string `json:"session"`
 }
+
+type ctxAuthKey string
+
+const TokenContextKey ctxAuthKey = "user_token"

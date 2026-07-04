@@ -17,10 +17,28 @@ type HttpTransportService struct {
 	httpClient *http.Client
 }
 
+type RoundTripperWrapper struct {
+	http.RoundTripper
+}
+
+func (r *RoundTripperWrapper) RoundTrip(w *http.Request) (*http.Response, error) {
+	if token, ok := w.Context().Value(models.TokenContextKey).(string); ok {
+		w = w.Clone(w.Context())
+		w.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	}
+
+	return r.RoundTripper.RoundTrip(w)
+}
+
 func NewHttpTransportService(addr string) *HttpTransportService {
+
 	return &HttpTransportService{
-		addr:       addr,
-		httpClient: &http.Client{},
+		addr: addr,
+		httpClient: &http.Client{
+			Transport: &RoundTripperWrapper{
+				RoundTripper: http.DefaultTransport,
+			},
+		},
 	}
 }
 

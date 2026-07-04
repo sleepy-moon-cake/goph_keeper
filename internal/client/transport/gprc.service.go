@@ -10,6 +10,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 type GPRCTransportService struct {
@@ -37,7 +38,7 @@ func getEncryptedPayload[T models.CardData | models.TextData | models.BinaryData
 }
 
 func (t *GPRCTransportService) Register(ctx context.Context, name string, password string) (string, error) {
-	client, err := t.getClient()
+	client, err := t.getClient(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +57,7 @@ func (t *GPRCTransportService) Register(ctx context.Context, name string, passwo
 }
 
 func (t *GPRCTransportService) Login(ctx context.Context, name string, password string) (string, error) {
-	client, err := t.getClient()
+	client, err := t.getClient(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -75,7 +76,7 @@ func (t *GPRCTransportService) Login(ctx context.Context, name string, password 
 }
 
 func (t *GPRCTransportService) ListRecords(ctx context.Context, limit int) ([]models.RecordMeta, error) {
-	client, err := t.getClient()
+	client, err := t.getClient(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +101,7 @@ func (t *GPRCTransportService) ListRecords(ctx context.Context, limit int) ([]mo
 }
 
 func (t *GPRCTransportService) GetEntityByName(ctx context.Context, name string) (*models.EncryptedRecord, error) {
-	client, err := t.getClient()
+	client, err := t.getClient(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +124,7 @@ func (t *GPRCTransportService) GetEntityByName(ctx context.Context, name string)
 }
 
 func (t *GPRCTransportService) SaveText(ctx context.Context, data models.TextData) error {
-	client, err := t.getClient()
+	client, err := t.getClient(ctx)
 	if err != nil {
 		return err
 	}
@@ -147,7 +148,7 @@ func (t *GPRCTransportService) SaveText(ctx context.Context, data models.TextDat
 }
 
 func (t *GPRCTransportService) SaveCard(ctx context.Context, data models.CardData) error {
-	client, err := t.getClient()
+	client, err := t.getClient(ctx)
 	if err != nil {
 		return err
 	}
@@ -171,7 +172,7 @@ func (t *GPRCTransportService) SaveCard(ctx context.Context, data models.CardDat
 }
 
 func (t *GPRCTransportService) SaveFile(ctx context.Context, data models.BinaryData) error {
-	client, err := t.getClient()
+	client, err := t.getClient(ctx)
 	if err != nil {
 		return err
 	}
@@ -195,7 +196,7 @@ func (t *GPRCTransportService) SaveFile(ctx context.Context, data models.BinaryD
 }
 
 func (t *GPRCTransportService) DeleteEntityByName(ctx context.Context, name string) error {
-	client, err := t.getClient()
+	client, err := t.getClient(ctx)
 	if err != nil {
 		return err
 	}
@@ -210,11 +211,12 @@ func (t *GPRCTransportService) DeleteEntityByName(ctx context.Context, name stri
 	return nil
 }
 
-func (t *GPRCTransportService) getClient() (struct {
+func (t *GPRCTransportService) getClient(ctx context.Context) (struct {
 	pb.TransportServiceClient
 	Close func() error
 }, error) {
-	conn, err := grpc.NewClient(t.addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	conn, err := grpc.NewClient(t.addr, grpc.WithChainUnaryInterceptor(newAuthInterceptor(ctx)), grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		return struct {
@@ -230,4 +232,14 @@ func (t *GPRCTransportService) getClient() (struct {
 		TransportServiceClient: pb.NewTransportServiceClient(conn),
 		Close:                  conn.Close,
 	}, nil
+}
+
+func newAuthInterceptor(cobraCtx context.Context) func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+	return func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		if token, ok := cobraCtx.Value(models.TokenContextKey).(string); ok {
+			ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+		}
+
+		return invoker(ctx, method, req, reply, cc, opts...)
+	}
 }
