@@ -48,14 +48,17 @@ func (t *HttpTransportService) Register(ctx context.Context, name string, passwo
 	var buffer bytes.Buffer
 
 	if err := json.NewEncoder(&buffer).Encode(body); err != nil {
-		slog.Error("")
+		return "", fmt.Errorf("failed to encode request body: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, t.addr, &buffer)
+	registerURL := fmt.Sprintf("%s/api/v1/auth/register", t.addr)
 
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, registerURL, &buffer)
 	if err != nil {
 		return "", fmt.Errorf("failed to form request: %w", err)
 	}
+
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := t.httpClient.Do(req)
 
@@ -87,7 +90,9 @@ func (t *HttpTransportService) Login(ctx context.Context, name string, password 
 		return "", fmt.Errorf("failed to encode: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, t.addr, &buffer)
+	loginURL := fmt.Sprintf("%s/api/v1/auth/login", t.addr)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, loginURL, &buffer)
 
 	if err != nil {
 		return "", fmt.Errorf("failed to form request: %w", err)
@@ -116,7 +121,7 @@ func (t *HttpTransportService) Login(ctx context.Context, name string, password 
 }
 
 func (t *HttpTransportService) ListRecords(ctx context.Context, limit int) ([]models.RecordMeta, error) {
-	fullURL := fmt.Sprintf("%s?limit=%d", t.addr, limit)
+	fullURL := fmt.Sprintf("%s/api/v1/records?limit=%d", t.addr, limit)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fullURL, nil)
 	if err != nil {
@@ -142,7 +147,7 @@ func (t *HttpTransportService) ListRecords(ctx context.Context, limit int) ([]mo
 }
 
 func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string) (*models.EncryptedRecord, error) {
-	fullURL := fmt.Sprintf("%s/%s", t.addr, name)
+	fullURL := fmt.Sprintf("%s/api/v1/records/%s", t.addr, name)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fullURL, nil)
 	if err != nil {
@@ -172,7 +177,7 @@ func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string)
 }
 
 func (t *HttpTransportService) DeleteEntityByName(ctx context.Context, name string) error {
-	fullURL := fmt.Sprintf("%s/%s", t.addr, name)
+	fullURL := fmt.Sprintf("%s/api/v1/records/%s", t.addr, name)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, fullURL, nil)
 	if err != nil {
@@ -268,7 +273,9 @@ func sendJSON(ctx context.Context, t *HttpTransportService, data models.Encrypte
 		return fmt.Errorf("failed to encode data: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, t.addr, &bdata)
+	fullURL := fmt.Sprintf("%s/api/v1/records", t.addr)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fullURL, &bdata)
 	if err != nil {
 		return fmt.Errorf("create request failed: %w", err)
 	}

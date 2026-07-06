@@ -42,4 +42,6 @@ type AuthResponse struct {
 
 type ctxAuthKey string
 
-const TokenContextKey ctxAuthKey = "user_token"
+const TokenContextKey ctxAuthKey = "jwt_token"
+
+const UserContextKey ctxAuthKey = "user_name"
