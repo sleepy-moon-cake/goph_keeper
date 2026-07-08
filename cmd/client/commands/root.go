@@ -52,6 +52,6 @@ func Execute(ctx context.Context) error {
 
 func init() {
 	// setup configuration flags
-	rootCmd.PersistentFlags().StringVarP(&serverAddr, "http", "a", "http://localhost:4200", "Http server address")
+	rootCmd.PersistentFlags().StringVarP(&serverAddr, "http", "a", ":8080", "Http server address")
 	rootCmd.PersistentFlags().StringVarP(&grpcAddr, "grpc", "g", ":3200", "gRPC server address")
 }

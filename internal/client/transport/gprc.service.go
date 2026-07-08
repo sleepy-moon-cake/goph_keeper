@@ -2,8 +2,6 @@ package transport
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/json"
 	"fmt"
 	"goph_keeper/internal/shared/models"
 	"goph_keeper/internal/shared/pb"
@@ -21,20 +19,6 @@ func NewGRPCTransportService(addr string) *GPRCTransportService {
 	return &GPRCTransportService{
 		addr: addr,
 	}
-}
-
-// Вспомогательная дженерик-функция для генерации зашифрованной (хэшированной) записи
-func getEncryptedPayload[T models.CardData | models.TextData | models.BinaryData](data T) ([]byte, error) {
-	rawBytes, err := json.Marshal(data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal data: %w", err)
-	}
-
-	h := sha256.New()
-	h.Write(rawBytes)
-	dst := h.Sum(nil)
-
-	return dst, nil
 }
 
 func (t *GPRCTransportService) Register(ctx context.Context, name string, password string) (string, error) {
@@ -130,7 +114,7 @@ func (t *GPRCTransportService) SaveText(ctx context.Context, data models.TextDat
 	}
 	defer client.Close()
 
-	encryptedBytes, err := getEncryptedPayload(data)
+	encryptedBytes, nonce, err := getEncryptedData(data)
 	if err != nil {
 		return fmt.Errorf("saveText crypto: %w", err)
 	}
@@ -139,7 +123,7 @@ func (t *GPRCTransportService) SaveText(ctx context.Context, data models.TextDat
 	payload.SetName(data.Name)
 	payload.SetDataType("text")
 	payload.SetSecureData(encryptedBytes)
-	payload.SetNonce(nil)
+	payload.SetNonce(nonce)
 
 	if _, err := client.SaveRecord(ctx, payload); err != nil {
 		return fmt.Errorf("saveText: %w", err)
@@ -154,7 +138,7 @@ func (t *GPRCTransportService) SaveCard(ctx context.Context, data models.CardDat
 	}
 	defer client.Close()
 
-	encryptedBytes, err := getEncryptedPayload(data)
+	encryptedBytes, nonce, err := getEncryptedData(data)
 	if err != nil {
 		return fmt.Errorf("saveCard crypto: %w", err)
 	}
@@ -163,7 +147,7 @@ func (t *GPRCTransportService) SaveCard(ctx context.Context, data models.CardDat
 	payload.SetName(data.Name)
 	payload.SetDataType("card")
 	payload.SetSecureData(encryptedBytes)
-	payload.SetNonce(nil)
+	payload.SetNonce(nonce)
 
 	if _, err := client.SaveRecord(ctx, payload); err != nil {
 		return fmt.Errorf("saveCard: %w", err)
@@ -178,7 +162,7 @@ func (t *GPRCTransportService) SaveFile(ctx context.Context, data models.BinaryD
 	}
 	defer client.Close()
 
-	encryptedBytes, err := getEncryptedPayload(data)
+	encryptedBytes, nonce, err := getEncryptedData(data)
 	if err != nil {
 		return fmt.Errorf("saveFile crypto: %w", err)
 	}
@@ -187,7 +171,7 @@ func (t *GPRCTransportService) SaveFile(ctx context.Context, data models.BinaryD
 	payload.SetName(data.Name)
 	payload.SetDataType("file")
 	payload.SetSecureData(encryptedBytes)
-	payload.SetNonce(nil)
+	payload.SetNonce(nonce)
 
 	if _, err := client.SaveRecord(ctx, payload); err != nil {
 		return fmt.Errorf("saveFile: %w", err)

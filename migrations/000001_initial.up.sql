@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER GENERATED ALWAYS AS IDENTITY,
+    user_name VARCHAR(255) PRIMARY KEY NOT NULL, 
+    password_hash TEXT NOT NULL 
+);
+
+CREATE TABLE IF NOT EXISTS records (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    user_name VARCHAR(255) REFERENCES users(user_name) ON DELETE CASCADE NOT NULL,
+    record_name VARCHAR(255) NOT NULL,
+    data_type VARCHAR(50) NOT NULL,
+    payload BYTEA NOT NULL,
+    nonce BYTEA NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), 
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), 
+    UNIQUE(user_name, record_name)
+);

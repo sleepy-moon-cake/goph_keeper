@@ -3,9 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"goph_keeper/internal/server/config"
+	"goph_keeper/internal/server/db"
 	"goph_keeper/internal/server/delivery"
 	"goph_keeper/internal/server/middlewares"
+	"goph_keeper/internal/server/repository"
 	"goph_keeper/internal/shared/pb"
+	"log"
 	"log/slog"
 	"net"
 	"net/http"
@@ -22,26 +26,32 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	secretKey := "super_secret_goph_keeper_key"
-	grpcAddr := ":4200"
-	httpAddr := ":8080"
-	db := NewMockMemoryStorage()
+	cfg := config.NewConfig()
+
+	conn, err := db.NewConnector(ctx, cfg.DatabaseDSN)
+	if err != nil {
+		log.Fatal("data base error: ", err)
+	}
+
+	database := db.New(conn)
+
+	repo := repository.NewSQLRepository(database)
 
 	g, gCtx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
 		fmt.Println("Start grpc server::::")
-		grpcHandler := delivery.NewGRPCHandler(db, secretKey)
+		grpcHandler := delivery.NewGRPCHandler(repo, cfg.SecretKey)
 
-		if err := runGRPC(gCtx, grpcAddr, grpcHandler, secretKey); err != nil {
+		if err := runGRPC(gCtx, cfg.GRPCServerAddress, grpcHandler, cfg.SecretKey); err != nil {
 			return fmt.Errorf("gRPC server error: %w", err)
 		}
 		return nil
 	})
 
 	g.Go(func() error {
-		httpRouter := delivery.NewRouter(delivery.NewHTTPHandler(db, secretKey), secretKey)
-		if err := runHttp(gCtx, httpAddr, httpRouter); err != nil {
+		httpRouter := delivery.NewRouter(delivery.NewHTTPHandler(repo, cfg.SecretKey), cfg.SecretKey)
+		if err := runHttp(gCtx, cfg.ServerAddress, httpRouter); err != nil {
 			return fmt.Errorf("http server error: %w", err)
 		}
 		return nil
@@ -73,7 +83,7 @@ func runHttp(ctx context.Context, addr string, handler http.Handler) error {
 		srv.Shutdown(ctxWithTime)
 	}()
 
-	if err := srv.ListenAndServeTLS("cert.pem", "key.pem"); err != nil && err != http.ErrServerClosed {
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		slog.Error("server failed", "error", err)
 		return fmt.Errorf("ListenAndServeTLS:%w", err)
 	}

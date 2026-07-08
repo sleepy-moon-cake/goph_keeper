@@ -7,21 +7,15 @@ import (
 	"os"
 )
 
-var (
-	textKey   string = name
-	textValue string
-	textPath  string = path
-)
-
 func handleText() (models.TextData, error) {
-	var textData = models.TextData{Name: fileKey, Text: textValue}
+	var textData = models.TextData{Name: name, Text: value}
 
-	if textValue == "" && textPath == "" {
+	if value == "" && path == "" {
 		return textData, fmt.Errorf("--value or --path should not be empty for --text flag")
 	}
 
-	if textPath != "" {
-		fileInfo, err := os.Stat(textPath)
+	if path != "" {
+		fileInfo, err := os.Stat(path)
 		if err != nil {
 			return textData, fmt.Errorf("cant get stats: %w", err)
 		}
@@ -30,7 +24,7 @@ func handleText() (models.TextData, error) {
 			return textData, fmt.Errorf("max file size 10MB")
 		}
 
-		file, err := os.OpenFile(textPath, os.O_RDONLY, 0)
+		file, err := os.OpenFile(path, os.O_RDONLY, 0)
 
 		if err != nil {
 			return textData, fmt.Errorf("cant open file: %w", err)

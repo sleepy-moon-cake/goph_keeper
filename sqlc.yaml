@@ -1,0 +1,15 @@
+version: "2"
+sql:
+  - engine: "postgresql" 
+    schema: "migrations/" 
+    queries: "internal/server/db/query.sql"
+    gen:
+      go:
+        package: "db"
+        out: "internal/server/db"
+        sql_package: "pgx/v5"
+        overrides:
+          - db_type: "text"
+            go_type: "string"
+          - db_type: "varchar"
+            go_type: "string"

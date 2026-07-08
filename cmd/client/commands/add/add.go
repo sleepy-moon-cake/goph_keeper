@@ -17,8 +17,10 @@ var (
 )
 
 var (
-	name string
-	path string
+	name   string
+	path   string
+	value  string
+	holder string
 )
 
 var maxMemorySize = 10 * 1024 * 1024
@@ -97,12 +99,13 @@ func NewAddCommand(service interfaces.TransportService) *cobra.Command {
 	addCmd.Flags().StringVar(&path, "path", "", "Set path to file")
 
 	// text flags
-	addCmd.Flags().StringVar(&textValue, "value", "", "Text content")
+	addCmd.Flags().StringVar(&value, "value", "", "Text content")
 
 	// card flags
 	addCmd.Flags().StringVar(&number, "number", "", "set credit card number")
 	addCmd.Flags().StringVar(&cvv, "cvv", "", "set credit card cvv")
 	addCmd.Flags().StringVar(&expire, "expire", "", "set credit card expired")
+	addCmd.Flags().StringVar(&holder, "h", "card_holder", "set holder of card")
 
 	return addCmd
 }

@@ -6,7 +6,9 @@ import (
 	"goph_keeper/internal/client/interfaces"
 	"goph_keeper/internal/shared/config"
 	"goph_keeper/internal/shared/models"
+	"os"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -31,9 +33,26 @@ func NewListCmd(service interfaces.TransportService) *cobra.Command {
 
 			ctx = context.WithValue(ctx, models.TokenContextKey, token)
 
-			if _, err := service.ListRecords(ctx, limit); err != nil {
+			records, err := service.ListRecords(ctx, limit)
+
+			if err != nil {
 				return fmt.Errorf("list command:%w", err)
 			}
+
+			table := tablewriter.NewWriter(os.Stdout)
+			table.SetHeader([]string{"#", "Name", "Type"})
+
+			for i, rec := range records {
+				table.Append([]string{
+					fmt.Sprintf("%d", i+1),
+					rec.Name,
+					rec.DataType,
+				})
+			}
+
+			fmt.Println("\n📋 YOUR SAVED RECORDS:")
+			table.Render()
+			fmt.Println()
 
 			return nil
 		},

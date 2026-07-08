@@ -3,7 +3,6 @@ package transport
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -198,7 +197,7 @@ func (t *HttpTransportService) DeleteEntityByName(ctx context.Context, name stri
 }
 
 func (t *HttpTransportService) SaveText(ctx context.Context, data models.TextData) error {
-	dst, err := getEncryptedData(data)
+	dst, nonce, err := getEncryptedData(data)
 	if err != nil {
 		return fmt.Errorf("encrypt data: %w", err)
 	}
@@ -207,7 +206,7 @@ func (t *HttpTransportService) SaveText(ctx context.Context, data models.TextDat
 		Name:     data.Name,
 		DataType: "text",
 		Payload:  dst,
-		Nonce:    nil,
+		Nonce:    nonce,
 	}
 
 	if err := sendJSON(ctx, t, record); err != nil {
@@ -217,7 +216,7 @@ func (t *HttpTransportService) SaveText(ctx context.Context, data models.TextDat
 }
 
 func (t *HttpTransportService) SaveCard(ctx context.Context, data models.CardData) error {
-	dst, err := getEncryptedData(data)
+	dst, nonce, err := getEncryptedData(data)
 	if err != nil {
 		return fmt.Errorf("encrypt data: %w", err)
 	}
@@ -226,7 +225,7 @@ func (t *HttpTransportService) SaveCard(ctx context.Context, data models.CardDat
 		Name:     data.Name,
 		DataType: "card",
 		Payload:  dst,
-		Nonce:    nil,
+		Nonce:    nonce,
 	}
 
 	if err := sendJSON(ctx, t, record); err != nil {
@@ -236,7 +235,7 @@ func (t *HttpTransportService) SaveCard(ctx context.Context, data models.CardDat
 }
 
 func (t *HttpTransportService) SaveFile(ctx context.Context, data models.BinaryData) error {
-	dst, err := getEncryptedData(data)
+	dst, nonce, err := getEncryptedData(data)
 	if err != nil {
 		return fmt.Errorf("encrypt data: %w", err)
 	}
@@ -245,25 +244,13 @@ func (t *HttpTransportService) SaveFile(ctx context.Context, data models.BinaryD
 		Name:     data.Name,
 		DataType: "file",
 		Payload:  dst,
-		Nonce:    nil,
+		Nonce:    nonce,
 	}
 
 	if err := sendJSON(ctx, t, record); err != nil {
 		return fmt.Errorf("try to store file: %w", err)
 	}
 	return nil
-}
-
-func getEncryptedData[T models.CardData | models.BinaryData | models.TextData](data T) ([]byte, error) {
-	rawBytes, err := json.Marshal(data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal data: %w", err)
-	}
-
-	h := sha256.New()
-	h.Write(rawBytes)
-
-	return h.Sum(nil), nil
 }
 
 func sendJSON(ctx context.Context, t *HttpTransportService, data models.EncryptedRecord) error {

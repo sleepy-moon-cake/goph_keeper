@@ -1,9 +1,25 @@
+SERVER_ADDR = :8080
+GRPC_ADDR   = :3200
+DB_DSN      = postgres://myuser:mypassword@localhost:5432/mydb?sslmode=disable
+SECRET_KEY = super_secret_goph_keeper_key
 
+run-dev:
+	go run ./cmd/server/main.go -a "$(SERVER_ADDR)" -g "$(GRPC_ADDR)" -d "$(DB_DSN)" -k "$(SECRET_KEY)"
 
-run-c:
-	go run cmd/client/
-run-s:
-	go run cmd/server/main.go
+db-up:
+	docker compose up -d  
+
+db-down:
+	docker compose down
+
+migrate-up:
+	migrate -path ./migrations -database "$(DB_DSN)" up	
+
+migration:
+ifndef name
+	$(error var name is undefined! Use: make migration name=migraion_name)
+endif
+	migrate create -ext sql -dir ./migrations -seq $(name)
 
 gen-proto:
 	protoc \
@@ -12,3 +28,14 @@ gen-proto:
   --go_opt=default_api_level=API_OPAQUE \
   -I proto \
   gophkeeper.proto
+
+gen-query:
+	sqlc generate
+
+
+# CLIENT COMMAND
+login:
+	go run ./cmd/client/main.go login  -a "$(SERVER_ADDR)" -g "$(GRPC_ADDR)"
+
+register:
+	go run ./cmd/client/main.go register  -a "$(SERVER_ADDR)" -g "$(GRPC_ADDR)"

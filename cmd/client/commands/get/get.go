@@ -6,7 +6,9 @@ import (
 	"goph_keeper/internal/client/interfaces"
 	"goph_keeper/internal/shared/config"
 	"goph_keeper/internal/shared/models"
+	"os"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -35,9 +37,25 @@ func NewGetCmd(service interfaces.TransportService) *cobra.Command {
 				return fmt.Errorf("name is required param")
 			}
 
-			if _, err := service.GetEntityByName(ctx, name); err != nil {
+			entity, err := service.GetEntityByName(ctx, name)
+
+			if err != nil {
 				return fmt.Errorf("delete entity:%w", err)
 			}
+
+			table := tablewriter.NewWriter(os.Stdout)
+			table.SetHeader([]string{"#", "Name", "Type", "Data"})
+
+			table.Append([]string{
+				"1",
+				entity.Name,
+				entity.DataType,
+				string(entity.Payload),
+			})
+
+			fmt.Println("\n📋 YOUR SAVED RECORDS:")
+			table.Render()
+			fmt.Println()
 
 			return nil
 		},

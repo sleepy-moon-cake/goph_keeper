@@ -7,19 +7,14 @@ import (
 	"os"
 )
 
-var (
-	fileKey  string = name
-	filePath string = path
-)
-
 func handleFile() (models.BinaryData, error) {
-	fileData := models.BinaryData{Name: fileKey}
+	fileData := models.BinaryData{Name: name}
 
-	if filePath == "" {
+	if path == "" {
 		return fileData, fmt.Errorf("--path required for --file")
 	}
 
-	fileInfo, err := os.Stat(textPath)
+	fileInfo, err := os.Stat(path)
 	if err != nil {
 		return fileData, fmt.Errorf("cant get stats: %w", err)
 	}
@@ -30,7 +25,7 @@ func handleFile() (models.BinaryData, error) {
 
 	fileData.FileName = fileInfo.Name()
 
-	file, err := os.OpenFile(textPath, os.O_RDONLY, 0)
+	file, err := os.OpenFile(path, os.O_RDONLY, 0)
 
 	if err != nil {
 		return fileData, fmt.Errorf("cant open file: %w", err)

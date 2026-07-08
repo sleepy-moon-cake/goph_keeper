@@ -6,10 +6,9 @@ import (
 )
 
 var (
-	cardKey string = name
-	cvv     string
-	number  string
-	expire  string
+	cvv    string
+	number string
+	expire string
 )
 
 func handleCard() (models.CardData, error) {
@@ -18,10 +17,11 @@ func handleCard() (models.CardData, error) {
 	}
 
 	cardData := models.CardData{
+		Name:           name,
 		CardNumber:     number,
 		CVV:            cvv,
 		ExpirationDate: expire,
-		Name:           name,
+		CardholderName: holder,
 	}
 
 	return cardData, nil
