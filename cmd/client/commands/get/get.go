@@ -21,17 +21,18 @@ func NewGetCmd(service interfaces.TransportService) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			token, err := config.LoadToken()
+			session, err := config.LoadSession()
 
 			if err != nil {
-				return fmt.Errorf("get command: %w", err)
+				return fmt.Errorf("add command: %w", err)
 			}
 
-			if token == "" {
+			if session.Token == "" {
 				return fmt.Errorf("you are not logged in. Please run 'gophkeeper login' first")
 			}
 
-			ctx = context.WithValue(ctx, models.TokenContextKey, token)
+			ctx = context.WithValue(ctx, models.TokenContextKey, session.Token)
+			ctx = context.WithValue(ctx, models.UserContextKey, session.UserName)
 
 			if name == "" {
 				return fmt.Errorf("name is required param")

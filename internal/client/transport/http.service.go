@@ -8,12 +8,14 @@ import (
 	"log/slog"
 	"net/http"
 
+	"goph_keeper/internal/client/interfaces"
 	"goph_keeper/internal/shared/models"
 )
 
 type HttpTransportService struct {
 	addr       string
 	httpClient *http.Client
+	cache      interfaces.CacheService
 }
 
 type RoundTripperWrapper struct {
@@ -29,7 +31,7 @@ func (r *RoundTripperWrapper) RoundTrip(w *http.Request) (*http.Response, error)
 	return r.RoundTripper.RoundTrip(w)
 }
 
-func NewHttpTransportService(addr string) *HttpTransportService {
+func NewHttpTransportService(addr string, cache interfaces.CacheService) *HttpTransportService {
 
 	return &HttpTransportService{
 		addr: addr,
@@ -38,6 +40,7 @@ func NewHttpTransportService(addr string) *HttpTransportService {
 				RoundTripper: http.DefaultTransport,
 			},
 		},
+		cache: cache,
 	}
 }
 
@@ -129,7 +132,8 @@ func (t *HttpTransportService) ListRecords(ctx context.Context, limit int) ([]mo
 
 	resp, err := t.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("http request failed: %w", err)
+		slog.Warn("HTTP request failed, switching to local cache", "error", err)
+		return t.cache.GetRecords(ctx)
 	}
 	defer resp.Body.Close()
 
@@ -140,6 +144,10 @@ func (t *HttpTransportService) ListRecords(ctx context.Context, limit int) ([]mo
 	var records []models.RecordMeta
 	if err := json.NewDecoder(resp.Body).Decode(&records); err != nil {
 		return nil, fmt.Errorf("failed to decode list response: %w", err)
+	}
+
+	if err := t.cache.UpdateRecords(ctx, records); err != nil {
+		slog.Warn("failed to update local cache", "error", err)
 	}
 
 	return records, nil
@@ -155,7 +163,8 @@ func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string)
 
 	resp, err := t.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("http request failed: %w", err)
+		slog.Warn("HTTP request failed, switching to local cache", "error", err)
+		return t.cache.GetRecordByName(ctx, name)
 	}
 	defer resp.Body.Close()
 
@@ -170,6 +179,10 @@ func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string)
 	var record models.EncryptedRecord
 	if err := json.NewDecoder(resp.Body).Decode(&record); err != nil {
 		return nil, fmt.Errorf("failed to decode response body: %w", err)
+	}
+
+	if err := t.cache.UpdateSingleRecord(ctx, &record); err != nil {
+		slog.Warn("failed to update local cache", "name", record.Name, "error", err)
 	}
 
 	return &record, nil

@@ -25,11 +25,11 @@ func NewRegisterCmd(service interfaces.TransportService) *cobra.Command {
 
 			fmt.Print("Enter username: ")
 			scanner := bufio.NewScanner(os.Stdin)
-			var name string
+			var userName string
 			if scanner.Scan() {
-				name = strings.TrimSpace(scanner.Text())
+				userName = strings.TrimSpace(scanner.Text())
 			}
-			if len(name) == 0 {
+			if len(userName) == 0 {
 				return fmt.Errorf("username cannot be empty")
 			}
 
@@ -61,12 +61,12 @@ func NewRegisterCmd(service interfaces.TransportService) *cobra.Command {
 			h.Write([]byte(password))
 			passwordHash := fmt.Sprintf("%x", h.Sum(nil))
 
-			token, err := service.Register(ctx, name, passwordHash)
+			token, err := service.Register(ctx, userName, passwordHash)
 			if err != nil {
 				return fmt.Errorf("login command: %w", err)
 			}
 
-			if err := config.SaveToken(token); err != nil {
+			if err := config.SaveToken(token, userName); err != nil {
 				return fmt.Errorf("failed to save session: %w", err)
 			}
 

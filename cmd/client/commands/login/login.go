@@ -23,12 +23,12 @@ func NewLoginCmd(service interfaces.TransportService) *cobra.Command {
 
 			fmt.Print("Enter username: ")
 			scanner := bufio.NewScanner(os.Stdin)
-			var name string
+			var userName string
 			if scanner.Scan() {
-				name = strings.TrimSpace(scanner.Text())
+				userName = strings.TrimSpace(scanner.Text())
 			}
 
-			if name == "" {
+			if userName == "" {
 				return fmt.Errorf("username cannot be empty")
 			}
 
@@ -48,12 +48,12 @@ func NewLoginCmd(service interfaces.TransportService) *cobra.Command {
 			h.Write(bytePassword)
 			passwordHash := fmt.Sprintf("%x", h.Sum(nil))
 
-			token, err := service.Login(ctx, name, passwordHash)
+			token, err := service.Login(ctx, userName, passwordHash)
 			if err != nil {
 				return fmt.Errorf("login command: %w", err)
 			}
 
-			if err := config.SaveToken(token); err != nil {
+			if err := config.SaveToken(token, userName); err != nil {
 				return fmt.Errorf("failed to save session: %w", err)
 			}
 

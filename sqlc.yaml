@@ -1,7 +1,7 @@
 version: "2"
 sql:
   - engine: "postgresql" 
-    schema: "migrations/" 
+    schema: "internal/server/migrations/" 
     queries: "internal/server/db/query.sql"
     gen:
       go:
@@ -13,3 +13,12 @@ sql:
             go_type: "string"
           - db_type: "varchar"
             go_type: "string"
+
+  - engine: "sqlite" 
+    schema: "internal/client/migrations/" 
+    queries: "internal/client/db/query.sql"
+    gen:
+      go:
+        package: "db"
+        out: "internal/client/db"
+        sql_package: "database/sql"

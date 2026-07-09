@@ -10,15 +10,16 @@ import (
 type TransportConfig struct {
 	AddrGRPC string
 	AddrHTTP string
+	Cache    interfaces.CacheService
 }
 
 func NewTransportService(cfg *TransportConfig) (interfaces.TransportService, error) {
 	if cfg.AddrGRPC != "" {
-		return NewGRPCTransportService(cfg.AddrGRPC), nil
+		return NewGRPCTransportService(cfg.AddrGRPC, cfg.Cache), nil
 	}
 
 	if cfg.AddrHTTP != "" {
-		return NewHttpTransportService(cfg.AddrHTTP), nil
+		return NewHttpTransportService(cfg.AddrHTTP, cfg.Cache), nil
 	}
 
 	return nil, fmt.Errorf("addrGRPC and addrHTTP cant be empty")

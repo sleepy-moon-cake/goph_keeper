@@ -3,8 +3,10 @@ package transport
 import (
 	"context"
 	"fmt"
+	"goph_keeper/internal/client/interfaces"
 	"goph_keeper/internal/shared/models"
 	"goph_keeper/internal/shared/pb"
+	"log/slog"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -12,12 +14,14 @@ import (
 )
 
 type GPRCTransportService struct {
-	addr string
+	addr  string
+	cache interfaces.CacheService
 }
 
-func NewGRPCTransportService(addr string) *GPRCTransportService {
+func NewGRPCTransportService(addr string, cache interfaces.CacheService) *GPRCTransportService {
 	return &GPRCTransportService{
-		addr: addr,
+		addr:  addr,
+		cache: cache,
 	}
 }
 
@@ -71,7 +75,8 @@ func (t *GPRCTransportService) ListRecords(ctx context.Context, limit int) ([]mo
 
 	resp, err := client.ListRecords(ctx, payload)
 	if err != nil {
-		return nil, fmt.Errorf("list records grpc: %w", err)
+		slog.Warn("GRPC request failed, switching to local cache", "error", err)
+		return t.cache.GetRecords(ctx)
 	}
 
 	var result []models.RecordMeta
@@ -81,6 +86,9 @@ func (t *GPRCTransportService) ListRecords(ctx context.Context, limit int) ([]mo
 			DataType: r.GetDataType(),
 		})
 	}
+
+	_ = t.cache.UpdateRecords(ctx, result)
+
 	return result, nil
 }
 

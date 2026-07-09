@@ -9,6 +9,8 @@ import (
 	"goph_keeper/cmd/client/commands/list"
 	"goph_keeper/cmd/client/commands/login"
 	"goph_keeper/cmd/client/commands/register"
+	"goph_keeper/internal/client/cache"
+	"goph_keeper/internal/client/db"
 	"goph_keeper/internal/client/transport"
 
 	"github.com/spf13/cobra"
@@ -26,9 +28,18 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute(ctx context.Context) error {
+
+	conn, err := db.NewConnector(ctx)
+	if err != nil {
+		return fmt.Errorf("new connections to cash db: %w", err)
+	}
+
+	cache := cache.NewCacheService(conn)
+
 	ts, err := transport.NewTransportService(&transport.TransportConfig{
 		AddrGRPC: grpcAddr,
 		AddrHTTP: serverAddr,
+		Cache:    cache,
 	})
 
 	if err != nil {

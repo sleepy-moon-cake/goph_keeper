@@ -7,7 +7,8 @@ import (
 )
 
 type Config struct {
-	Token string `json:"token"`
+	Token    string `json:"token"`
+	UserName string `json:"user_name"`
 }
 
 func getCfgPath() (string, error) {
@@ -20,13 +21,13 @@ func getCfgPath() (string, error) {
 }
 
 // SaveToken записывает JWT в файл
-func SaveToken(token string) error {
+func SaveToken(token string, userName string) error {
 	path, err := getCfgPath()
 	if err != nil {
 		return err
 	}
 
-	cfg := Config{Token: token}
+	cfg := Config{Token: token, UserName: userName}
 	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		return err
@@ -35,24 +36,24 @@ func SaveToken(token string) error {
 	return os.WriteFile(path, data, 0600)
 }
 
-// LoadToken читает JWT из файла
-func LoadToken() (string, error) {
+// LoadSession читает JWT из файла
+func LoadSession() (*Config, error) {
 	path, err := getCfgPath()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return "", nil
+			return nil, nil
 		}
-		return "", err
+		return nil, err
 	}
 
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err != nil {
-		return "", err
+		return nil, err
 	}
-	return cfg.Token, nil
+	return &cfg, nil
 }
