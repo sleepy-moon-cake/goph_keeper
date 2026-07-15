@@ -1,10 +1,8 @@
 package get
 
 import (
-	"context"
 	"fmt"
 	"goph_keeper/internal/client/interfaces"
-	"goph_keeper/internal/shared/config"
 	"goph_keeper/internal/shared/models"
 	"os"
 
@@ -21,27 +19,40 @@ func NewGetCmd(service interfaces.TransportService) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			session, err := config.LoadSession()
-
-			if err != nil {
-				return fmt.Errorf("add command: %w", err)
-			}
-
-			if session.Token == "" {
-				return fmt.Errorf("you are not logged in. Please run 'gophkeeper login' first")
-			}
-
-			ctx = context.WithValue(ctx, models.TokenContextKey, session.Token)
-			ctx = context.WithValue(ctx, models.UserContextKey, session.UserName)
-
 			if name == "" {
 				return fmt.Errorf("name is required param")
 			}
 
 			entity, err := service.GetEntityByName(ctx, name)
-
 			if err != nil {
-				return fmt.Errorf("delete entity:%w", err)
+				return fmt.Errorf("get entity: %w", err)
+			}
+
+			var dataString string
+			switch entity.DataType {
+			case "text":
+				if textData, ok := entity.Data.(models.TextData); ok {
+					dataString = textData.Text
+				} else {
+					dataString = "ошибка приведения типов текста"
+				}
+
+			case "card":
+				if cardData, ok := entity.Data.(models.CardData); ok {
+					dataString = fmt.Sprintf("Номер: %s | Срок: %s | CVV: %s", cardData.CardNumber, cardData.ExpirationDate, cardData.CVV)
+				} else {
+					dataString = "ошибка приведения типов карты"
+				}
+
+			case "file":
+				if binaryData, ok := entity.Data.(models.BinaryData); ok {
+					dataString = fmt.Sprintf("Файл: %s (%d байт)", binaryData.FileName, len(binaryData.Data))
+				} else {
+					dataString = "ошибка приведения типов файла"
+				}
+
+			default:
+				dataString = "неизвестный формат данных"
 			}
 
 			table := tablewriter.NewWriter(os.Stdout)
@@ -51,7 +62,7 @@ func NewGetCmd(service interfaces.TransportService) *cobra.Command {
 				"1",
 				entity.Name,
 				entity.DataType,
-				string(entity.Payload),
+				dataString,
 			})
 
 			fmt.Println("\n📋 YOUR SAVED RECORDS:")

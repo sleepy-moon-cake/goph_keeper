@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"goph_keeper/internal/client/migrations"
 	"log/slog"
 	"time"
 
@@ -26,6 +27,12 @@ func NewConnector(ctx context.Context) (*sql.DB, error) {
 	}
 
 	slog.Info("HAS CONNECTED TO INNER CACHE DB")
+
+	if err := migrations.RunMigrations(db); err != nil {
+		return nil, fmt.Errorf("migration db: %w", err)
+	}
+
+	slog.Info("DATABASE MIGRATION COMPLETE")
 
 	return db, nil
 }

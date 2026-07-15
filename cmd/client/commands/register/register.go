@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"goph_keeper/internal/client/interfaces"
-	"goph_keeper/internal/shared/config"
+	"goph_keeper/internal/client/utils"
 	"os"
 	"strings"
 	"syscall"
@@ -14,7 +14,7 @@ import (
 	"golang.org/x/term"
 )
 
-func NewRegisterCmd(service interfaces.TransportService) *cobra.Command {
+func NewRegisterCmd(service interfaces.TransportService, saveSession func(name, key, token string) error) *cobra.Command {
 	var registerCmd = &cobra.Command{
 		Use:   "register",
 		Short: "registration",
@@ -66,7 +66,9 @@ func NewRegisterCmd(service interfaces.TransportService) *cobra.Command {
 				return fmt.Errorf("login command: %w", err)
 			}
 
-			if err := config.SaveToken(token, userName); err != nil {
+			key := utils.GenerateSecretKey(password, userName)
+
+			if err := saveSession(userName, key, token); err != nil {
 				return fmt.Errorf("failed to save session: %w", err)
 			}
 

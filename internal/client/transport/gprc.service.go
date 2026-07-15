@@ -14,14 +14,16 @@ import (
 )
 
 type GPRCTransportService struct {
-	addr  string
-	cache interfaces.CacheService
+	addr       string
+	cache      interfaces.CacheService
+	encryptKey string
 }
 
-func NewGRPCTransportService(addr string, cache interfaces.CacheService) *GPRCTransportService {
+func NewGRPCTransportService(addr string, cache interfaces.CacheService, encryptKey string) *GPRCTransportService {
 	return &GPRCTransportService{
-		addr:  addr,
-		cache: cache,
+		addr:       addr,
+		cache:      cache,
+		encryptKey: encryptKey,
 	}
 }
 
@@ -92,7 +94,12 @@ func (t *GPRCTransportService) ListRecords(ctx context.Context, limit int) ([]mo
 	return result, nil
 }
 
-func (t *GPRCTransportService) GetEntityByName(ctx context.Context, name string) (*models.EncryptedRecord, error) {
+func (t *GPRCTransportService) GetEntityByName(ctx context.Context, name string) (*models.DecryptedRecord, error) {
+	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	if !ok || cryptedKey == "" {
+		return nil, fmt.Errorf("encryption key missing in context")
+	}
+
 	client, err := t.getClient(ctx)
 	if err != nil {
 		return nil, err
@@ -104,15 +111,27 @@ func (t *GPRCTransportService) GetEntityByName(ctx context.Context, name string)
 
 	resp, err := client.GetRecord(ctx, payload)
 	if err != nil {
-		return nil, fmt.Errorf("get record: %w", err)
+		slog.Warn("gRPC request failed, switching to local cache", "error", err)
+
+		record, err := t.cache.GetRecordByName(ctx, name)
+		if err != nil {
+			return nil, fmt.Errorf("get record from cache: %w", err)
+		}
+		return getDecryptedData(record, cryptedKey)
 	}
 
-	return &models.EncryptedRecord{
+	record := models.EncryptedRecord{
 		Name:     resp.GetName(),
 		DataType: resp.GetDataType(),
 		Payload:  resp.GetSecureData(),
 		Nonce:    resp.GetNonce(),
-	}, nil
+	}
+
+	if err := t.cache.UpdateSingleRecord(ctx, &record); err != nil {
+		slog.Warn("failed to update local cache", "name", record.Name, "error", err)
+	}
+
+	return getDecryptedData(&record, cryptedKey)
 }
 
 func (t *GPRCTransportService) SaveText(ctx context.Context, data models.TextData) error {
@@ -122,7 +141,12 @@ func (t *GPRCTransportService) SaveText(ctx context.Context, data models.TextDat
 	}
 	defer client.Close()
 
-	encryptedBytes, nonce, err := getEncryptedData(data)
+	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	if !ok {
+		return fmt.Errorf("saveText crypto")
+	}
+
+	encryptedBytes, nonce, err := getEncryptedData(data, cryptedKey)
 	if err != nil {
 		return fmt.Errorf("saveText crypto: %w", err)
 	}
@@ -146,7 +170,12 @@ func (t *GPRCTransportService) SaveCard(ctx context.Context, data models.CardDat
 	}
 	defer client.Close()
 
-	encryptedBytes, nonce, err := getEncryptedData(data)
+	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	if !ok {
+		return fmt.Errorf("save card")
+	}
+
+	encryptedBytes, nonce, err := getEncryptedData(data, cryptedKey)
 	if err != nil {
 		return fmt.Errorf("saveCard crypto: %w", err)
 	}
@@ -170,7 +199,12 @@ func (t *GPRCTransportService) SaveFile(ctx context.Context, data models.BinaryD
 	}
 	defer client.Close()
 
-	encryptedBytes, nonce, err := getEncryptedData(data)
+	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	if !ok {
+		return fmt.Errorf("save file")
+	}
+
+	encryptedBytes, nonce, err := getEncryptedData(data, cryptedKey)
 	if err != nil {
 		return fmt.Errorf("saveFile crypto: %w", err)
 	}

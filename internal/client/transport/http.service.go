@@ -16,6 +16,7 @@ type HttpTransportService struct {
 	addr       string
 	httpClient *http.Client
 	cache      interfaces.CacheService
+	encryptKey string
 }
 
 type RoundTripperWrapper struct {
@@ -31,7 +32,7 @@ func (r *RoundTripperWrapper) RoundTrip(w *http.Request) (*http.Response, error)
 	return r.RoundTripper.RoundTrip(w)
 }
 
-func NewHttpTransportService(addr string, cache interfaces.CacheService) *HttpTransportService {
+func NewHttpTransportService(addr string, cache interfaces.CacheService, encryptKey string) *HttpTransportService {
 
 	return &HttpTransportService{
 		addr: addr,
@@ -40,7 +41,8 @@ func NewHttpTransportService(addr string, cache interfaces.CacheService) *HttpTr
 				RoundTripper: http.DefaultTransport,
 			},
 		},
-		cache: cache,
+		cache:      cache,
+		encryptKey: encryptKey,
 	}
 }
 
@@ -153,7 +155,13 @@ func (t *HttpTransportService) ListRecords(ctx context.Context, limit int) ([]mo
 	return records, nil
 }
 
-func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string) (*models.EncryptedRecord, error) {
+func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string) (*models.DecryptedRecord, error) {
+	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+
+	if !ok {
+		return nil, fmt.Errorf("get entity")
+	}
+
 	fullURL := fmt.Sprintf("%s/api/v1/records/%s", t.addr, name)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fullURL, nil)
@@ -164,7 +172,14 @@ func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string)
 	resp, err := t.httpClient.Do(req)
 	if err != nil {
 		slog.Warn("HTTP request failed, switching to local cache", "error", err)
-		return t.cache.GetRecordByName(ctx, name)
+
+		record, err := t.cache.GetRecordByName(ctx, name)
+
+		if err != nil {
+			return nil, fmt.Errorf("get record from cashe: %w", err)
+		}
+
+		return getDecryptedData(record, cryptedKey)
 	}
 	defer resp.Body.Close()
 
@@ -185,7 +200,7 @@ func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string)
 		slog.Warn("failed to update local cache", "name", record.Name, "error", err)
 	}
 
-	return &record, nil
+	return getDecryptedData(&record, cryptedKey)
 }
 
 func (t *HttpTransportService) DeleteEntityByName(ctx context.Context, name string) error {
@@ -210,7 +225,12 @@ func (t *HttpTransportService) DeleteEntityByName(ctx context.Context, name stri
 }
 
 func (t *HttpTransportService) SaveText(ctx context.Context, data models.TextData) error {
-	dst, nonce, err := getEncryptedData(data)
+	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	if !ok {
+		return fmt.Errorf("save text")
+	}
+
+	dst, nonce, err := getEncryptedData(data, cryptedKey)
 	if err != nil {
 		return fmt.Errorf("encrypt data: %w", err)
 	}
@@ -229,7 +249,12 @@ func (t *HttpTransportService) SaveText(ctx context.Context, data models.TextDat
 }
 
 func (t *HttpTransportService) SaveCard(ctx context.Context, data models.CardData) error {
-	dst, nonce, err := getEncryptedData(data)
+	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	if !ok {
+		return fmt.Errorf("save card")
+	}
+
+	dst, nonce, err := getEncryptedData(data, cryptedKey)
 	if err != nil {
 		return fmt.Errorf("encrypt data: %w", err)
 	}
@@ -248,7 +273,12 @@ func (t *HttpTransportService) SaveCard(ctx context.Context, data models.CardDat
 }
 
 func (t *HttpTransportService) SaveFile(ctx context.Context, data models.BinaryData) error {
-	dst, nonce, err := getEncryptedData(data)
+	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	if !ok {
+		return fmt.Errorf("save file")
+	}
+
+	dst, nonce, err := getEncryptedData(data, cryptedKey)
 	if err != nil {
 		return fmt.Errorf("encrypt data: %w", err)
 	}

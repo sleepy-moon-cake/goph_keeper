@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"goph_keeper/internal/client/interfaces"
-	"goph_keeper/internal/shared/config"
+	"goph_keeper/internal/client/utils"
 	"os"
 	"strings"
 	"syscall"
@@ -14,7 +14,7 @@ import (
 	"golang.org/x/term"
 )
 
-func NewLoginCmd(service interfaces.TransportService) *cobra.Command {
+func NewLoginCmd(service interfaces.TransportService, saveSession func(name, key, token string) error) *cobra.Command {
 	var loginCmd = &cobra.Command{
 		Use:   "login",
 		Short: "authorization",
@@ -44,6 +44,8 @@ func NewLoginCmd(service interfaces.TransportService) *cobra.Command {
 				return fmt.Errorf("password cannot be empty")
 			}
 
+			cryptedKey := utils.GenerateSecretKey(string(bytePassword), userName)
+
 			h := sha256.New()
 			h.Write(bytePassword)
 			passwordHash := fmt.Sprintf("%x", h.Sum(nil))
@@ -53,7 +55,7 @@ func NewLoginCmd(service interfaces.TransportService) *cobra.Command {
 				return fmt.Errorf("login command: %w", err)
 			}
 
-			if err := config.SaveToken(token, userName); err != nil {
+			if err := saveSession(userName, cryptedKey, token); err != nil {
 				return fmt.Errorf("failed to save session: %w", err)
 			}
 

@@ -10,11 +10,8 @@ import (
 )
 
 const deleteRecord = `-- name: DeleteRecord :exec
-= ?
-ORDER BY created_at DESC;
-
 DELETE FROM records
-WHERE use
+WHERE user_name = ? AND record_name = ?
 `
 
 type DeleteRecordParams struct {
@@ -28,11 +25,10 @@ func (q *Queries) DeleteRecord(ctx context.Context, arg DeleteRecordParams) erro
 }
 
 const getAllRecordsByUsername = `-- name: GetAllRecordsByUsername :many
-_name = ? AND record_name = ?;
-
 SELECT id, user_name, record_name, data_type, payload, nonce, sync_status, created_at, updated_at
 FROM records
-WHERE user_nam
+WHERE user_name = ?
+ORDER BY created_at DESC
 `
 
 func (q *Queries) GetAllRecordsByUsername(ctx context.Context, userName string) ([]Record, error) {
@@ -69,10 +65,9 @@ func (q *Queries) GetAllRecordsByUsername(ctx context.Context, userName string) 
 }
 
 const getPendingRecords = `-- name: GetPendingRecords :many
-_name = ? AND record_name = ?;
-
-
-SELECT id, user_name, record_name, data_type, payload, nonce, cre
+SELECT id, user_name, record_name, data_type, payload, nonce, created_at, updated_at
+FROM records
+WHERE sync_status = 'pending'
 `
 
 type GetPendingRecordsRow struct {
@@ -86,9 +81,6 @@ type GetPendingRecordsRow struct {
 	UpdatedAt  string
 }
 
-// ============================================================================
-// СЛУЖЕБНЫЕ ЗАПРОСЫ ДЛЯ СИНХРОНИЗАЦИИ
-// ============================================================================
 func (q *Queries) GetPendingRecords(ctx context.Context) ([]GetPendingRecordsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getPendingRecords)
 	if err != nil {
@@ -122,11 +114,9 @@ func (q *Queries) GetPendingRecords(ctx context.Context) ([]GetPendingRecordsRow
 }
 
 const getRecordByUniqueKey = `-- name: GetRecordByUniqueKey :one
-tatus, created_at, updated_at;
-
 SELECT id, user_name, record_name, data_type, payload, nonce, sync_status, created_at, updated_at
 FROM records
-WHERE use
+WHERE user_name = ? AND record_name = ?
 `
 
 type GetRecordByUniqueKeyParams struct {
@@ -152,7 +142,6 @@ func (q *Queries) GetRecordByUniqueKey(ctx context.Context, arg GetRecordByUniqu
 }
 
 const saveRecord = `-- name: SaveRecord :one
-
 INSERT INTO records (user_name, record_name, data_type, payload, nonce, sync_status, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
 ON CONFLICT(user_name, record_name) DO UPDATE SET
@@ -161,7 +150,7 @@ ON CONFLICT(user_name, record_name) DO UPDATE SET
     nonce = excluded.nonce,
     sync_status = excluded.sync_status,
     updated_at = CURRENT_TIMESTAMP
-RETURNING id, user_name, record_name, data_type, payload, nonce, sync_
+RETURNING id, user_name, record_name, data_type, payload, nonce, sync_status, created_at, updated_at
 `
 
 type SaveRecordParams struct {
@@ -173,9 +162,6 @@ type SaveRecordParams struct {
 	SyncStatus string
 }
 
-// ============================================================================
-// ЗАПРОСЫ ДЛЯ ТАБЛИЦЫ RECORDS (КЛИЕНТСКИЙ КЭШ)
-// ============================================================================
 func (q *Queries) SaveRecord(ctx context.Context, arg SaveRecordParams) (Record, error) {
 	row := q.db.QueryRowContext(ctx, saveRecord,
 		arg.UserName,
@@ -201,13 +187,11 @@ func (q *Queries) SaveRecord(ctx context.Context, arg SaveRecordParams) (Record,
 }
 
 const updateSyncStatus = `-- name: UpdateSyncStatus :exec
-ted_at, updated_at
-FROM records
-WHERE sync_status = 'pending';
-
+UPDATE records
+SET sync_status = 'synced'
+WHERE id = ?
 `
 
-// Переводит запись в статус 'synced' по
 func (q *Queries) UpdateSyncStatus(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, updateSyncStatus, id)
 	return err

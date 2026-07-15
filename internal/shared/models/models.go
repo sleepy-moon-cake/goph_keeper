@@ -26,6 +26,12 @@ type EncryptedRecord struct {
 	Nonce    []byte `json:"nonce"`     // Вектор инициализации для AES-GCM
 }
 
+type DecryptedRecord struct {
+	Name     string `json:"name"`
+	DataType string `json:"data_type"`
+	Data     any    `json:"data"`
+}
+
 type RecordMeta struct {
 	Name     string `json:"name"`      // Имя секреты (например, "My Visa")
 	DataType string `json:"data_type"` // Тип секрета (например, "card")
@@ -40,8 +46,10 @@ type AuthResponse struct {
 	Session string `json:"session"`
 }
 
-type ctxAuthKey string
+type ctxAuthKeys string
 
-const TokenContextKey ctxAuthKey = "jwt_token"
+const TokenContextKey ctxAuthKeys = "jwt_token"
 
-const UserContextKey ctxAuthKey = "user_name"
+const UserContextKey ctxAuthKeys = "user_name"
+
+const CryptedContextKey ctxAuthKeys = "crypted_key"

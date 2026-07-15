@@ -1,11 +1,8 @@
 package list
 
 import (
-	"context"
 	"fmt"
 	"goph_keeper/internal/client/interfaces"
-	"goph_keeper/internal/shared/config"
-	"goph_keeper/internal/shared/models"
 	"os"
 
 	"github.com/olekukonko/tablewriter"
@@ -20,19 +17,6 @@ func NewListCmd(service interfaces.TransportService) *cobra.Command {
 		Short: "get entities, number is stricted by limit, default limit = 100",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
-
-			session, err := config.LoadSession()
-
-			if err != nil {
-				return fmt.Errorf("add command: %w", err)
-			}
-
-			if session.Token == "" {
-				return fmt.Errorf("you are not logged in. Please run 'gophkeeper login' first")
-			}
-
-			ctx = context.WithValue(ctx, models.TokenContextKey, session.Token)
-			ctx = context.WithValue(ctx, models.UserContextKey, session.UserName)
 
 			records, err := service.ListRecords(ctx, limit)
 
