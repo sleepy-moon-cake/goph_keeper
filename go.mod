@@ -9,6 +9,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.48
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.10.2
+	go.uber.org/mock v0.6.0
 	golang.org/x/sync v0.21.0
 	golang.org/x/term v0.44.0
 	google.golang.org/grpc v1.81.1
@@ -22,7 +23,6 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
-	go.uber.org/mock v0.6.0 // indirect
 	golang.org/x/net v0.51.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
