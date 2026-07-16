@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"context"
+	"goph_keeper/internal/server/interfaces"
 	"goph_keeper/internal/server/utils"
 	"goph_keeper/internal/shared/models"
 	"goph_keeper/internal/shared/pb"
@@ -11,22 +12,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type RepositoryDb interface {
-	AddUser(ctx context.Context, username, passwordHash string) error
-	GetUserPassword(ctx context.Context, username string) (string, error)
-	SaveRecord(ctx context.Context, username string, record models.EncryptedRecord) error
-	GetRecord(ctx context.Context, username, name string) (models.EncryptedRecord, error)
-	DeleteRecord(ctx context.Context, username, name string) error
-	ListRecords(ctx context.Context, username string, limit int32) ([]models.RecordMeta, error)
-}
-
 type GRPCTransportServer struct {
 	pb.UnimplementedTransportServiceServer
-	db        RepositoryDb
+	db        interfaces.RepositoryDb
 	secretKey string
 }
 
-func NewGRPCHandler(db RepositoryDb, secretKey string) *GRPCTransportServer {
+func NewGRPCHandler(db interfaces.RepositoryDb, secretKey string) *GRPCTransportServer {
 	return &GRPCTransportServer{
 		db:        db,
 		secretKey: secretKey,

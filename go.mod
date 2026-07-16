@@ -4,7 +4,6 @@ go 1.25.1
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.5.2
-	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/mattn/go-sqlite3 v1.14.48
@@ -23,6 +22,7 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
+	go.uber.org/mock v0.6.0 // indirect
 	golang.org/x/net v0.51.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.34.0 // indirect

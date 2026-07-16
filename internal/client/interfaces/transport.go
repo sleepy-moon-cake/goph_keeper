@@ -5,6 +5,7 @@ import (
 	"goph_keeper/internal/shared/models"
 )
 
+//go:generate mockgen -source=transport.go -destination=gen/mock_transport.go -package=mocks
 type TransportService interface {
 	SaveText(ctx context.Context, data models.TextData) error
 	SaveCard(ctx context.Context, data models.CardData) error

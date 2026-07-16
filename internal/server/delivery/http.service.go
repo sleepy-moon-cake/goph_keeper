@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"encoding/json"
+	"goph_keeper/internal/server/interfaces"
 	"goph_keeper/internal/server/middlewares"
 	"goph_keeper/internal/server/utils"
 	"goph_keeper/internal/shared/models"
@@ -12,7 +13,7 @@ import (
 )
 
 type HTTPHandler struct {
-	db        RepositoryDb
+	db        interfaces.RepositoryDb
 	secretKey string
 }
 
@@ -33,7 +34,7 @@ func NewRouter(handler *HTTPHandler, secretKey string) *http.ServeMux {
 	return mux
 }
 
-func NewHTTPHandler(db RepositoryDb, secretKey string) *HTTPHandler {
+func NewHTTPHandler(db interfaces.RepositoryDb, secretKey string) *HTTPHandler {
 	return &HTTPHandler{
 		db:        db,
 		secretKey: secretKey,
