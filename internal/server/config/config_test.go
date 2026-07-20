@@ -6,39 +6,28 @@ import (
 	"testing"
 )
 
-// Вспомогательная функция для сброса глобального состояния флагов перед каждым тестом
 func resetFlags() {
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 }
 
-// Тест значений по умолчанию, когда флаги не переданы
 func TestNewConfig_Defaults(t *testing.T) {
 	resetFlags()
 
-	// Имитируем запуск без аргументов (только имя бинарника)
 	os.Args = []string{"cmd"}
 
-	cfg := NewConfig()
+	cfg, err := NewConfig()
 
-	if cfg.ServerAddress != "localhost:8080" {
-		t.Errorf("expected default ServerAddress 'localhost:8080', got '%s'", cfg.ServerAddress)
+	if err == nil {
+		t.Fatal("expected error due to empty secret key by default, got nil")
 	}
-	if cfg.GRPCServerAddress != ":3200" {
-		t.Errorf("expected default GRPCServerAddress ':3200', got '%s'", cfg.GRPCServerAddress)
-	}
-	if cfg.DatabaseDSN != "" {
-		t.Errorf("expected default DatabaseDSN to be empty, got '%s'", cfg.DatabaseDSN)
-	}
-	if cfg.SecretKey != "" {
-		t.Errorf("expected default SecretKey to be empty, got '%s'", cfg.SecretKey)
+	if cfg != nil {
+		t.Errorf("expected config to be nil on error, got %v", cfg)
 	}
 }
 
-// Тест успешного парсинга всех переданных флагов
 func TestNewConfig_WithFlags(t *testing.T) {
 	resetFlags()
 
-	// Имитируем передачу флагов через консоль
 	os.Args = []string{
 		"cmd",
 		"-a", "127.0.0.1:9090",
@@ -47,7 +36,10 @@ func TestNewConfig_WithFlags(t *testing.T) {
 		"-k", "my-super-secret-key",
 	}
 
-	cfg := NewConfig()
+	cfg, err := NewConfig()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if cfg.ServerAddress != "127.0.0.1:9090" {
 		t.Errorf("expected ServerAddress '127.0.0.1:9090', got '%s'", cfg.ServerAddress)
@@ -60,5 +52,24 @@ func TestNewConfig_WithFlags(t *testing.T) {
 	}
 	if cfg.SecretKey != "my-super-secret-key" {
 		t.Errorf("expected SecretKey 'my-super-secret-key', got '%s'", cfg.SecretKey)
+	}
+}
+
+func TestNewConfig_MissingSecretKey(t *testing.T) {
+	resetFlags()
+
+	os.Args = []string{
+		"cmd",
+		"-a", "localhost:8080",
+		"-g", ":3200",
+		"-d", "postgres://localhost:5432",
+	}
+
+	cfg, err := NewConfig()
+	if err == nil {
+		t.Fatal("expected error due to missing secret key (-k), got nil")
+	}
+	if cfg != nil {
+		t.Errorf("expected config to be nil on error, got %v", cfg)
 	}
 }

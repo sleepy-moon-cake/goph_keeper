@@ -2,7 +2,6 @@ package get
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"io"
 	"os"
@@ -23,7 +22,6 @@ func TestNewGetCmd_Text_Success(t *testing.T) {
 	name = "" // Сброс глобального флага
 
 	mockService := mocks.NewMockTransportService(ctrl)
-	ctx := context.Background()
 
 	mockResponse := &models.DecryptedRecord{
 		Name:     "my_notes",
@@ -40,7 +38,7 @@ func TestNewGetCmd_Text_Success(t *testing.T) {
 		Times(1)
 
 	cmd := NewGetCmd(mockService)
-	cmd.SetContext(ctx)
+	cmd.SetContext(t.Context())
 	cmd.SetArgs([]string{"--name", "my_notes"})
 
 	oldStdout := os.Stdout
@@ -94,7 +92,7 @@ func TestNewGetCmd_Card_Success(t *testing.T) {
 		Times(1)
 
 	cmd := NewGetCmd(mockService)
-	cmd.SetContext(context.Background())
+	cmd.SetContext(t.Context())
 	cmd.SetArgs([]string{"--name", "visa_card"})
 
 	oldStdout := os.Stdout

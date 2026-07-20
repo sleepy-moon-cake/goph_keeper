@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"context"
+	"errors"
 	"goph_keeper/internal/server/interfaces"
 	"goph_keeper/internal/server/utils"
 	"goph_keeper/internal/shared/models"
@@ -36,9 +37,9 @@ func (s *GRPCTransportServer) Register(ctx context.Context, req *pb.AuthRequest)
 	if err := s.db.AddUser(ctx, username, passwordHash); err != nil {
 		slog.Error("failed to register user in database", "username", username, "error", err)
 
-		// if errors.Is(err, repository.ErrUserAlreadyExists) {
-		// 	return nil, status.Error(codes.AlreadyExists, "username is already taken")
-		// }
+		if errors.Is(err, interfaces.ErrUserAlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, "username is already taken")
+		}
 
 		return nil, status.Error(codes.Internal, "internal server error, please try again later")
 	}
@@ -79,7 +80,7 @@ func (s *GRPCTransportServer) Login(ctx context.Context, req *pb.AuthRequest) (*
 }
 
 func (s *GRPCTransportServer) SaveRecord(ctx context.Context, req *pb.Record) (*pb.SaveResponse, error) {
-	username, ok := ctx.Value(models.UserContextKey).(string)
+	username, ok := models.GetUserName(ctx)
 	if !ok || username == "" {
 		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 	}
@@ -105,7 +106,7 @@ func (s *GRPCTransportServer) SaveRecord(ctx context.Context, req *pb.Record) (*
 }
 
 func (s *GRPCTransportServer) GetRecord(ctx context.Context, req *pb.GetRecordRequest) (*pb.Record, error) {
-	username, ok := ctx.Value(models.UserContextKey).(string)
+	username, ok := models.GetUserName(ctx)
 	if !ok || username == "" {
 		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 	}
@@ -128,7 +129,7 @@ func (s *GRPCTransportServer) GetRecord(ctx context.Context, req *pb.GetRecordRe
 }
 
 func (s *GRPCTransportServer) DeleteRecord(ctx context.Context, req *pb.GetRecordRequest) (*pb.SaveResponse, error) {
-	username, ok := ctx.Value(models.UserContextKey).(string)
+	username, ok := models.GetUserName(ctx)
 	if !ok || username == "" {
 		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 	}
@@ -143,7 +144,7 @@ func (s *GRPCTransportServer) DeleteRecord(ctx context.Context, req *pb.GetRecor
 }
 
 func (s *GRPCTransportServer) ListRecords(ctx context.Context, req *pb.ListRecordsRequest) (*pb.ListRecordsResponse, error) {
-	username, ok := ctx.Value(models.UserContextKey).(string)
+	username, ok := models.GetUserName(ctx)
 	if !ok || username == "" {
 		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 	}

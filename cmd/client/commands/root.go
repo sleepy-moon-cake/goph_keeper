@@ -83,9 +83,9 @@ func Execute(ctx context.Context) error {
 			return fmt.Errorf("you are not logged in. Please run 'gophkeeper login' first")
 		}
 
-		ctx = context.WithValue(ctx, models.TokenContextKey, session.Token)
-		ctx = context.WithValue(ctx, models.UserContextKey, session.UserName)
-		ctx = context.WithValue(ctx, models.CryptedContextKey, session.CryptedKey)
+		ctx = models.WithToken(ctx, session.Token)
+		ctx = models.WithUserName(ctx, session.UserName)
+		ctx = models.WithCryptedKey(ctx, session.CryptedKey)
 		cmd.SetContext(ctx)
 
 		return nil

@@ -42,7 +42,7 @@ func AuthUnaryInterceptor(secretKey string) grpc.UnaryServerInterceptor {
 			return nil, status.Error(codes.Unauthenticated, "invalid or expired token")
 		}
 
-		authenticatedCtx := context.WithValue(ctx, models.UserContextKey, userName)
+		authenticatedCtx := models.WithUserName(ctx, userName)
 
 		return handler(authenticatedCtx, req)
 	}

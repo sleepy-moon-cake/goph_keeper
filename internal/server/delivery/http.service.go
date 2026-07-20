@@ -116,7 +116,7 @@ func (h *HTTPHandler) SaveRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username, ok := r.Context().Value(models.UserContextKey).(string)
+	username, ok := models.GetUserName(r.Context())
 	if !ok || username == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -148,7 +148,7 @@ func (h *HTTPHandler) GetRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username, ok := r.Context().Value(models.UserContextKey).(string)
+	username, ok := models.GetUserName(r.Context())
 	if !ok || username == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -170,19 +170,38 @@ func (h *HTTPHandler) GetRecord(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(dbRecord)
 }
 
-// 5. DELETE RECORD (DELETE /api/v1/records/{name})
 func (h *HTTPHandler) DeleteRecord(w http.ResponseWriter, r *http.Request) {
-	// (Реализуется зеркально методу GetRecord, проверяя http.MethodDelete)
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	username, ok := models.GetUserName(r.Context())
+	if !ok || username == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	name := strings.TrimPrefix(r.URL.Path, "/api/v1/records/")
+	if name == "" {
+		http.Error(w, "Record name is required", http.StatusBadRequest)
+		return
+	}
+
+	err := h.db.DeleteRecord(r.Context(), username, name)
+	if err != nil {
+		http.Error(w, "Cant delete record", http.StatusNotFound)
+		return
+	}
 }
 
-// 6. LIST RECORDS (GET /api/v1/records?limit=10)
 func (h *HTTPHandler) ListRecords(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	username, ok := r.Context().Value(models.UserContextKey).(string)
+	username, ok := models.GetUserName(r.Context())
 	if !ok || username == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return

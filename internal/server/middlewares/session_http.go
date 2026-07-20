@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"context"
 	"goph_keeper/internal/server/utils"
 	"goph_keeper/internal/shared/models"
 	"log/slog"
@@ -29,8 +28,7 @@ func JWTSession(secretKey string) func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), models.UserContextKey, userName)
-
+			ctx := models.WithUserName(r.Context(), userName)
 			r = r.WithContext(ctx)
 
 			h.ServeHTTP(w, r)

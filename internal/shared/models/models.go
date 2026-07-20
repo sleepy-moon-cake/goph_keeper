@@ -1,5 +1,7 @@
 package models
 
+import "context"
+
 type TextData struct {
 	Name string `json:"name"`
 	Text string `json:"text"`
@@ -48,8 +50,35 @@ type AuthResponse struct {
 
 type ctxAuthKeys string
 
-const TokenContextKey ctxAuthKeys = "jwt_token"
+const (
+	tokenContextKey    ctxAuthKeys = "jwt_token"
+	userNameContextKey ctxAuthKeys = "user_name"
+	cryptedContextKey  ctxAuthKeys = "crypted_key"
+)
 
-const UserContextKey ctxAuthKeys = "user_name"
+func WithToken(ctx context.Context, token string) context.Context {
+	return context.WithValue(ctx, tokenContextKey, token)
+}
 
-const CryptedContextKey ctxAuthKeys = "crypted_key"
+func WithUserName(ctx context.Context, username string) context.Context {
+	return context.WithValue(ctx, userNameContextKey, username)
+}
+
+func WithCryptedKey(ctx context.Context, key string) context.Context {
+	return context.WithValue(ctx, cryptedContextKey, key)
+}
+
+func GetToken(ctx context.Context) (string, bool) {
+	token, ok := ctx.Value(tokenContextKey).(string)
+	return token, ok
+}
+
+func GetUserName(ctx context.Context) (string, bool) {
+	name, ok := ctx.Value(userNameContextKey).(string)
+	return name, ok
+}
+
+func GetCryptedKey(ctx context.Context) (string, bool) {
+	key, ok := ctx.Value(cryptedContextKey).(string)
+	return key, ok
+}

@@ -96,10 +96,16 @@ SELECT id, user_name, record_name, data_type, payload, nonce, created_at, update
 FROM records
 WHERE user_name = $1
 ORDER BY created_at DESC
+LIMIT $2
 `
 
-func (q *Queries) GetAllRecordsByUsername(ctx context.Context, userName string) ([]Record, error) {
-	rows, err := q.db.Query(ctx, getAllRecordsByUsername, userName)
+type GetAllRecordsByUsernameParams struct {
+	UserName string
+	Limit    int32
+}
+
+func (q *Queries) GetAllRecordsByUsername(ctx context.Context, arg GetAllRecordsByUsernameParams) ([]Record, error) {
+	rows, err := q.db.Query(ctx, getAllRecordsByUsername, arg.UserName, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

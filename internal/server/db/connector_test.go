@@ -8,11 +8,10 @@ import (
 
 // Тест: Передача невалидного Connection String должна приводить к ошибке парсинга/подключения
 func TestNewConnector_InvalidConnStr_Error(t *testing.T) {
-	ctx := context.Background()
 	invalidConnStr := "postgres://invalid_user:wrong_password@localhost:54321/non_existent_db?sslmode=disable"
 
 	// Так как адрес и порт недоступны, функция должна завершиться ошибкой на этапе Ping или подключения
-	pool, err := NewConnector(ctx, invalidConnStr)
+	pool, err := NewConnector(t.Context(), invalidConnStr)
 
 	// Проверяем, что пул не создался, а ошибка вернулась
 	if pool != nil {
@@ -27,7 +26,7 @@ func TestNewConnector_InvalidConnStr_Error(t *testing.T) {
 
 // Тест: Передача уже отмененного контекста должна сразу возвращать ошибку
 func TestNewConnector_CancelledContext_Error(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	cancel() // Отменяем контекст сразу перед вызовом
 
 	// Передаем даже корректную синтаксически строку, но с отмененным контекстом
@@ -46,7 +45,7 @@ func TestNewConnector_CancelledContext_Error(t *testing.T) {
 // Тест: Проверка таймаута (если контекст завершается быстрее, чем за секунду)
 func TestNewConnector_TimeoutContext_Error(t *testing.T) {
 	// Создаем контекст с экстремально коротким таймаутом в 1 наносекунду
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Nanosecond)
+	ctx, cancel := context.WithTimeout(t.Context(), 1*time.Nanosecond)
 	defer cancel()
 
 	pool, err := NewConnector(ctx, "postgres://user:pass@localhost:5432/db")

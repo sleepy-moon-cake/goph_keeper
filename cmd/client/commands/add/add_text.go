@@ -41,7 +41,5 @@ func handleText() (models.TextData, error) {
 		textData.Text = string(byteData)
 	}
 
-	fmt.Println(textData)
-
 	return textData, nil
 }

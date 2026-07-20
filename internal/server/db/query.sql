@@ -31,7 +31,8 @@ WHERE user_name = $1 AND record_name = $2;
 SELECT id, user_name, record_name, data_type, payload, nonce, created_at, updated_at
 FROM records
 WHERE user_name = $1
-ORDER BY created_at DESC;
+ORDER BY created_at DESC
+LIMIT $2;
 
 -- name: UpdateRecordData :one
 UPDATE records

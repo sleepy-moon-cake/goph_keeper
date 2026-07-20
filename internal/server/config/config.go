@@ -1,6 +1,9 @@
 package config
 
-import "flag"
+import (
+	"flag"
+	"fmt"
+)
 
 type Config struct {
 	ServerAddress     string
@@ -9,7 +12,7 @@ type Config struct {
 	SecretKey         string
 }
 
-func NewConfig() *Config {
+func NewConfig() (*Config, error) {
 	var config Config
 
 	flag.StringVar(&config.ServerAddress, "a", "localhost:8080", "server address")
@@ -19,5 +22,9 @@ func NewConfig() *Config {
 
 	flag.Parse()
 
-	return &config
+	if config.SecretKey == "" {
+		return nil, fmt.Errorf("secret key (-k) is required")
+	}
+
+	return &config, nil
 }

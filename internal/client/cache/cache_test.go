@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -17,7 +16,7 @@ func TestCacheService_GetRecordByName_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockCache := mocks.NewMockCacheService(ctrl)
-	ctx := context.Background()
+	ctx := t.Context()
 	recordName := "secret_key"
 
 	expectedRecord := &models.EncryptedRecord{
@@ -48,7 +47,7 @@ func TestCacheService_GetRecordByName_Error(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockCache := mocks.NewMockCacheService(ctrl)
-	ctx := context.Background()
+	ctx := t.Context()
 	expectedErr := errors.New("cache miss")
 
 	// Используем gomock.Any(), чтобы сработало на любую строку
@@ -70,7 +69,7 @@ func TestCacheService_UpdateRecords(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockCache := mocks.NewMockCacheService(ctrl)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	fakeRecords := []models.RecordMeta{
 		// Добавьте фейковые данные если необходимо

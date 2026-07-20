@@ -23,7 +23,7 @@ func mockUnaryHandler(ctx context.Context, req interface{}) (interface{}, error)
 // Тест: Методы Login и Register должны пропускаться без проверки токена
 func TestAuthUnaryInterceptor_BypassAuthMethods(t *testing.T) {
 	interceptor := AuthUnaryInterceptor(testSecretKey)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	bypassMethods := []string{"/pb.TransportService/Login", "/pb.TransportService/Register"}
 
@@ -56,7 +56,7 @@ func TestAuthUnaryInterceptor_Success(t *testing.T) {
 
 	// Создаем контекст с gRPC метаданными авторизации
 	md := metadata.Pairs("authorization", "Bearer "+validToken)
-	ctx := metadata.NewIncomingContext(context.Background(), md)
+	ctx := metadata.NewIncomingContext(t.Context(), md)
 
 	info := &grpc.UnaryServerInfo{FullMethod: "/pb.TransportService/SaveRecord"}
 
@@ -72,7 +72,7 @@ func TestAuthUnaryInterceptor_Success(t *testing.T) {
 	}
 
 	// Проверяем, что имя пользователя корректно записалось в контекст для хэндлеров
-	ctxUsername, ok := resCtx.Value(models.UserContextKey).(string)
+	ctxUsername, ok := models.GetUserName(resCtx)
 	if !ok || ctxUsername != username {
 		t.Errorf("expected username '%s' in context, got '%s'", username, ctxUsername)
 	}
@@ -81,11 +81,10 @@ func TestAuthUnaryInterceptor_Success(t *testing.T) {
 // Тест: Отсутствие метаданных в запросе возвращает Unauthenticated
 func TestAuthUnaryInterceptor_MissingMetadata(t *testing.T) {
 	interceptor := AuthUnaryInterceptor(testSecretKey)
-	ctx := context.Background() // Чистый контекст без метаданных
 
 	info := &grpc.UnaryServerInfo{FullMethod: "/pb.TransportService/GetRecord"}
 
-	_, err := interceptor(ctx, nil, info, mockUnaryHandler)
+	_, err := interceptor(t.Context(), nil, info, mockUnaryHandler)
 	if err == nil {
 		t.Fatal("expected error due to missing metadata, got nil")
 	}
@@ -102,7 +101,7 @@ func TestAuthUnaryInterceptor_MissingTokenHeader(t *testing.T) {
 
 	// Метаданные есть, но нужного ключа "authorization" внутри нет
 	md := metadata.Pairs("some-other-header", "value")
-	ctx := metadata.NewIncomingContext(context.Background(), md)
+	ctx := metadata.NewIncomingContext(t.Context(), md)
 
 	info := &grpc.UnaryServerInfo{FullMethod: "/pb.TransportService/GetRecord"}
 
@@ -122,7 +121,7 @@ func TestAuthUnaryInterceptor_InvalidToken(t *testing.T) {
 	interceptor := AuthUnaryInterceptor(testSecretKey)
 
 	md := metadata.Pairs("authorization", "Bearer corrupted.jwt.token")
-	ctx := metadata.NewIncomingContext(context.Background(), md)
+	ctx := metadata.NewIncomingContext(t.Context(), md)
 
 	info := &grpc.UnaryServerInfo{FullMethod: "/pb.TransportService/GetRecord"}
 

@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"context"
+	"errors"
 	"goph_keeper/internal/shared/models"
 )
 
@@ -14,3 +15,8 @@ type RepositoryDb interface {
 	DeleteRecord(ctx context.Context, username, name string) error
 	ListRecords(ctx context.Context, username string, limit int32) ([]models.RecordMeta, error)
 }
+
+var (
+	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrUserNotFound      = errors.New("user not found")
+)

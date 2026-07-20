@@ -11,7 +11,7 @@ func TestSessionManager_FullWorkflow_Integration(t *testing.T) {
 	// 1. Используем порт :0, чтобы ОС автоматически выделила любой свободный порт
 	sm := NewSessionManager("127.0.0.1:0")
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
 
 	// Нам нужно динамически узнать, какой порт выделила ОС, но в текущей реализации sm.addr не обновляется.
@@ -91,7 +91,7 @@ func TestSessionManager_FullWorkflow_Integration(t *testing.T) {
 func TestClientSession_ServerNotStarted_Error(t *testing.T) {
 	// Указываем порт, на котором заведомо никто не слушает
 	client := NewClientSession("127.0.0.1:49153")
-	ctx := context.Background()
+	ctx := t.Context()
 
 	// Проверяем Ping
 	err := client.Ping(ctx)

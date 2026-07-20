@@ -2,7 +2,6 @@ package add
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"strings"
 	"testing"
@@ -34,7 +33,6 @@ func TestNewAddCommand_SaveText_Success(t *testing.T) {
 	resetAddFlags()
 
 	mockService := mocks.NewMockTransportService(ctrl)
-	ctx := context.Background()
 
 	// Ожидаем вызов SaveText. Замените тип аргументов на структуру, которую генерирует ваш handleText()
 	mockService.EXPECT().
@@ -47,7 +45,7 @@ func TestNewAddCommand_SaveText_Success(t *testing.T) {
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetErr(buf)
-	cmd.SetContext(ctx)
+	cmd.SetContext(t.Context())
 
 	// Передаем аргументы для сохранения текста
 	cmd.SetArgs([]string{"--text", "--name", "my_notes", "--value", "some secret text"})
@@ -68,7 +66,7 @@ func TestNewAddCommand_MissingDataType_Error(t *testing.T) {
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetErr(buf)
-	cmd.SetContext(context.Background())
+	cmd.SetContext(t.Context())
 
 	// Передаем только имя, забыв тип данных
 	cmd.SetArgs([]string{"--name", "any_name"})
@@ -94,7 +92,7 @@ func TestNewAddCommand_MissingName_Error(t *testing.T) {
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetErr(buf)
-	cmd.SetContext(context.Background())
+	cmd.SetContext(t.Context())
 
 	// Передаем тип, но не передаем имя
 	cmd.SetArgs([]string{"--text", "--value", "hello"})
@@ -131,7 +129,7 @@ func TestNewAddCommand_SaveCard_ServiceError(t *testing.T) {
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetErr(buf)
-	cmd.SetContext(context.Background())
+	cmd.SetContext(t.Context())
 
 	// ДОБАВЛЕНО: флаг --expire, чтобы handleCard() пропустил валидацию
 	cmd.SetArgs([]string{

@@ -2,7 +2,6 @@ package delivery_test
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -103,7 +102,7 @@ func TestHTTPHandler_SaveRecord_Success(t *testing.T) {
 	bodyBytes, _ := json.Marshal(record)
 
 	// Наполняем контекст именем пользователя, имитируя работу middleware
-	ctx := context.WithValue(context.Background(), models.UserContextKey, "alice")
+	ctx := models.WithUserName(t.Context(), "alice")
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/records", bytes.NewReader(bodyBytes)).WithContext(ctx)
 	w := httptest.NewRecorder()
 
@@ -148,7 +147,7 @@ func TestHTTPHandler_GetRecord_Success(t *testing.T) {
 	mockDb := mocks.NewMockRepositoryDb(ctrl)
 	handler := delivery.NewHTTPHandler(mockDb, testSecretKey)
 
-	ctx := context.WithValue(context.Background(), models.UserContextKey, "bob")
+	ctx := models.WithUserName(t.Context(), "bob")
 	// strings.TrimPrefix отсекает префикс, оставляя "my_passport"
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/records/my_passport", nil).WithContext(ctx)
 	w := httptest.NewRecorder()

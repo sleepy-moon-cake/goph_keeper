@@ -26,7 +26,11 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	cfg := config.NewConfig()
+	cfg, err := config.NewConfig()
+
+	if err != nil {
+		log.Fatalf("config error: %v", err)
+	}
 
 	conn, err := db.NewConnector(ctx, cfg.DatabaseDSN)
 	if err != nil {
@@ -40,7 +44,6 @@ func main() {
 	g, gCtx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		fmt.Println("Start grpc server::::")
 		grpcHandler := delivery.NewGRPCHandler(repo, cfg.SecretKey)
 
 		if err := runGRPC(gCtx, cfg.GRPCServerAddress, grpcHandler, cfg.SecretKey); err != nil {

@@ -2,7 +2,6 @@ package delete // Тот же пакет, что и у кода команды
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"strings"
 	"testing"
@@ -21,7 +20,6 @@ func TestNewDeleteCmd_Success(t *testing.T) {
 	name = ""
 
 	mockService := mocks.NewMockTransportService(ctrl)
-	ctx := context.Background()
 
 	// Ожидаем вызов метода DeleteEntityByName с правильным именем
 	mockService.EXPECT().
@@ -35,7 +33,7 @@ func TestNewDeleteCmd_Success(t *testing.T) {
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetErr(buf)
-	cmd.SetContext(ctx)
+	cmd.SetContext(t.Context())
 
 	// Передаем аргументы флага
 	cmd.SetArgs([]string{"--name", "my_secret_passport"})
@@ -58,7 +56,7 @@ func TestNewDeleteCmd_MissingName_Error(t *testing.T) {
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetErr(buf)
-	cmd.SetContext(context.Background())
+	cmd.SetContext(t.Context())
 
 	// Запускаем без флагов
 	cmd.SetArgs([]string{})
@@ -94,7 +92,7 @@ func TestNewDeleteCmd_ServiceError(t *testing.T) {
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetErr(buf)
-	cmd.SetContext(context.Background())
+	cmd.SetContext(t.Context())
 	cmd.SetArgs([]string{"--name", "any_name"})
 
 	err := cmd.Execute()

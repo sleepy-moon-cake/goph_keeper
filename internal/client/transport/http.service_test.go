@@ -1,7 +1,6 @@
 package transport_test
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -43,7 +42,7 @@ func TestHttpTransportService_Login_Success(t *testing.T) {
 	svc := transport.NewHttpTransportService(server.URL, mockCache, "key")
 
 	// 3. Вызываем тестируемый метод
-	token, err := svc.Login(context.Background(), "test_user", "password123")
+	token, err := svc.Login(t.Context(), "test_user", "password123")
 
 	// 4. Проверяем утверждения (Assertions)
 	if err != nil {
@@ -66,7 +65,7 @@ func TestHttpTransportService_Login_BadStatus(t *testing.T) {
 
 	mockCache := mocks.NewMockCacheService(ctrl)
 	svc := transport.NewHttpTransportService(server.URL, mockCache, "key")
-	_, err := svc.Login(context.Background(), "user", "pass")
+	_, err := svc.Login(t.Context(), "user", "pass")
 
 	if err == nil {
 		t.Error("expected error due to bad status code, got nil")
@@ -101,7 +100,7 @@ func TestHttpTransportService_GetEntityByName_NetworkSuccess(t *testing.T) {
 		Times(1)
 
 	svc := transport.NewHttpTransportService(server.URL, mockCache, "key")
-	ctx := context.WithValue(context.Background(), models.CryptedContextKey, "super_secret_hex_key")
+	ctx := models.WithCryptedKey(t.Context(), "super_secret_hex_key")
 
 	// Вызываем метод
 	_, _ = svc.GetEntityByName(ctx, "summer")
@@ -131,7 +130,7 @@ func TestHttpTransportService_GetEntityByName_FallbackToCache(t *testing.T) {
 		Times(1)
 
 	svc := transport.NewHttpTransportService(server.URL, mockCache, "key")
-	ctx := context.WithValue(context.Background(), models.CryptedContextKey, "super_secret_hex_key")
+	ctx := models.WithCryptedKey(t.Context(), "super_secret_hex_key")
 
 	_, _ = svc.GetEntityByName(ctx, "summer")
 }

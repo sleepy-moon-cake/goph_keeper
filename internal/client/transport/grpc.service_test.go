@@ -1,7 +1,6 @@
 package transport_test
 
 import (
-	"context"
 	"testing"
 
 	mocks "goph_keeper/internal/client/interfaces/gen" // Путь к вашему сгенерированному моку
@@ -18,7 +17,7 @@ func TestGPRCTransportService_ListRecords_FallbackToCache(t *testing.T) {
 
 	// Инициализируем мок кэша
 	mockCache := mocks.NewMockCacheService(ctrl)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	// Настраиваем фейковый ответ, который должен вернуть кэш
 	expectedRecords := []models.RecordMeta{
@@ -54,8 +53,7 @@ func TestGPRCTransportService_GetEntityByName_FallbackToCache(t *testing.T) {
 
 	mockCache := mocks.NewMockCacheService(ctrl)
 
-	// Обязательно добавляем ключ шифрования в контекст, иначе метод упадет до gRPC запроса
-	ctx := context.WithValue(context.Background(), models.CryptedContextKey, "my-crypto-key")
+	ctx := models.WithCryptedKey(t.Context(), "my-crypto-key")
 	recordName := "secure_data"
 
 	// Мокаем возвращаемую из кэша зашифрованную запись.
@@ -92,7 +90,7 @@ func TestGPRCTransportService_GetEntityByName_MissingCryptoKey(t *testing.T) {
 	mockCache := mocks.NewMockCacheService(ctrl)
 
 	// Контекст пустой — ключа шифрования нет
-	ctx := context.Background()
+	ctx := t.Context()
 
 	service := transport.NewGRPCTransportService("localhost:8080", mockCache, "secret-key")
 

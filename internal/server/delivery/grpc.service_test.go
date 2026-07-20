@@ -1,7 +1,6 @@
 package delivery_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -35,7 +34,7 @@ func TestGRPCTransportServer_Register_Success(t *testing.T) {
 		Return(nil).
 		Times(1)
 
-	resp, err := server.Register(context.Background(), req)
+	resp, err := server.Register(t.Context(), req)
 
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -55,7 +54,7 @@ func TestGRPCTransportServer_Register_InvalidArgument(t *testing.T) {
 
 	req := &pb.AuthRequest{} // Пустой запрос
 
-	_, err := server.Register(context.Background(), req)
+	_, err := server.Register(t.Context(), req)
 
 	if err == nil {
 		t.Fatal("expected error, got nil")
@@ -85,7 +84,7 @@ func TestGRPCTransportServer_Login_Success(t *testing.T) {
 		Return("correct_hash", nil).
 		Times(1)
 
-	resp, err := server.Login(context.Background(), req)
+	resp, err := server.Login(t.Context(), req)
 
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -112,7 +111,7 @@ func TestGRPCTransportServer_Login_InvalidCredentials(t *testing.T) {
 		Return("actual_hash_in_db", nil).
 		Times(1)
 
-	_, err := server.Login(context.Background(), req)
+	_, err := server.Login(t.Context(), req)
 
 	if err == nil {
 		t.Fatal("expected error, got nil")
@@ -136,7 +135,7 @@ func TestGRPCTransportServer_SaveRecord_Unauthenticated(t *testing.T) {
 	req.SetName("secret")
 
 	// Вызов с пустым контекстом (без модели UserContextKey)
-	_, err := server.SaveRecord(context.Background(), req)
+	_, err := server.SaveRecord(t.Context(), req)
 
 	if err == nil {
 		t.Fatal("expected error, got nil")
@@ -157,8 +156,7 @@ func TestGRPCTransportServer_GetRecord_Success(t *testing.T) {
 	server := delivery.NewGRPCHandler(mockDb, testSecretKey)
 
 	// Добавляем имя пользователя в контекст, имитируя работу middleware авторизации
-	ctx := context.WithValue(context.Background(), models.UserContextKey, "authorized_user")
-
+	ctx := models.WithUserName(t.Context(), "authorized_user")
 	req := &pb.GetRecordRequest{}
 	req.SetName("bank_card")
 
@@ -193,7 +191,7 @@ func TestGRPCTransportServer_GetRecord_NotFound(t *testing.T) {
 	mockDb := mocks.NewMockRepositoryDb(ctrl)
 	server := delivery.NewGRPCHandler(mockDb, testSecretKey)
 
-	ctx := context.WithValue(context.Background(), models.UserContextKey, "authorized_user")
+	ctx := models.WithUserName(t.Context(), "authorized_user")
 
 	req := &pb.GetRecordRequest{}
 	req.SetName("lost_item")

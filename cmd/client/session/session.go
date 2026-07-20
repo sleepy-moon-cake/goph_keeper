@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"sync"
 	"time"
 )
 
@@ -20,6 +21,7 @@ type Session struct {
 type SessionManager struct {
 	session Session
 	addr    string
+	mu      sync.Mutex
 }
 
 func NewSessionManager(addr string) *SessionManager {
@@ -110,23 +112,34 @@ func (s *SessionManager) Listen(ctx context.Context) error {
 }
 
 func (s *SessionManager) set(name string, cryptedKey string, token string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	s.session.UserName = name
 	s.session.CryptedKey = cryptedKey
 	s.session.Token = token
 }
 
 func (s *SessionManager) clear() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	s.session.UserName = ""
 	s.session.CryptedKey = ""
 	s.session.Token = ""
 }
 
 func (s *SessionManager) get() (*Session, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	if s.session.UserName == "" || s.session.Token == "" || s.session.CryptedKey == "" {
 		return nil, false
 	}
 
-	return &s.session, true
+	// exclude rase when session is encoding and rapidly calling of set
+	copiedSession := s.session
+	return &copiedSession, true
 }
 
 func NewClientSession(addr string) *ClientSession {

@@ -2,7 +2,6 @@ package list
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"io"
 	"os"
@@ -23,7 +22,6 @@ func TestNewListCmd_Success(t *testing.T) {
 	limit = 100 // Сброс глобального флага к значению по умолчанию
 
 	mockService := mocks.NewMockTransportService(ctrl)
-	ctx := context.Background()
 
 	// Формируем фейковый список записей от сервиса
 	mockResponse := []models.RecordMeta{
@@ -38,8 +36,8 @@ func TestNewListCmd_Success(t *testing.T) {
 		Times(1)
 
 	cmd := NewListCmd(mockService)
-	cmd.SetContext(ctx)
-	
+	cmd.SetContext(t.Context())
+
 	// Передаем кастомный лимит через аргументы
 	cmd.SetArgs([]string{"--limit", "10"})
 

@@ -21,8 +21,6 @@ func NewRegisterCmd(service interfaces.TransportService, saveSession func(name, 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			fmt.Println("Registration:::::")
-
 			fmt.Print("Enter username: ")
 			scanner := bufio.NewScanner(os.Stdin)
 			var userName string

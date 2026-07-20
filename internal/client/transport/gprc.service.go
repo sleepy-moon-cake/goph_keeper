@@ -95,7 +95,7 @@ func (t *GPRCTransportService) ListRecords(ctx context.Context, limit int) ([]mo
 }
 
 func (t *GPRCTransportService) GetEntityByName(ctx context.Context, name string) (*models.DecryptedRecord, error) {
-	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	cryptedKey, ok := models.GetCryptedKey(ctx)
 	if !ok || cryptedKey == "" {
 		return nil, fmt.Errorf("encryption key missing in context")
 	}
@@ -141,7 +141,7 @@ func (t *GPRCTransportService) SaveText(ctx context.Context, data models.TextDat
 	}
 	defer client.Close()
 
-	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	cryptedKey, ok := models.GetCryptedKey(ctx)
 	if !ok {
 		return fmt.Errorf("saveText crypto")
 	}
@@ -170,7 +170,7 @@ func (t *GPRCTransportService) SaveCard(ctx context.Context, data models.CardDat
 	}
 	defer client.Close()
 
-	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	cryptedKey, ok := models.GetCryptedKey(ctx)
 	if !ok {
 		return fmt.Errorf("save card")
 	}
@@ -199,7 +199,7 @@ func (t *GPRCTransportService) SaveFile(ctx context.Context, data models.BinaryD
 	}
 	defer client.Close()
 
-	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	cryptedKey, ok := models.GetCryptedKey(ctx)
 	if !ok {
 		return fmt.Errorf("save file")
 	}
@@ -262,7 +262,7 @@ func (t *GPRCTransportService) getClient(ctx context.Context) (struct {
 
 func newAuthInterceptor(cobraCtx context.Context) func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 	return func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
-		if token, ok := cobraCtx.Value(models.TokenContextKey).(string); ok {
+		if token, ok := models.GetToken(cobraCtx); ok {
 			ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
 		}
 

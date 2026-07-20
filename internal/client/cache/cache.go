@@ -20,7 +20,7 @@ func NewCacheService(sqliteDB *sql.DB) *CacheService {
 }
 
 func (c *CacheService) GetRecords(ctx context.Context) ([]models.RecordMeta, error) {
-	userName, ok := ctx.Value(models.UserContextKey).(string)
+	userName, ok := models.GetUserName(ctx)
 	if !ok || userName == "" {
 		return nil, fmt.Errorf("cache: user name missing in context")
 	}
@@ -42,7 +42,7 @@ func (c *CacheService) GetRecords(ctx context.Context) ([]models.RecordMeta, err
 }
 
 func (c *CacheService) UpdateRecords(ctx context.Context, records []models.RecordMeta) error {
-	userName, ok := ctx.Value(models.UserContextKey).(string)
+	userName, ok := models.GetUserName(ctx)
 	if !ok || userName == "" {
 		return fmt.Errorf("cache: user name missing in context")
 	}
@@ -62,7 +62,7 @@ func (c *CacheService) UpdateRecords(ctx context.Context, records []models.Recor
 }
 
 func (c *CacheService) GetRecordByName(ctx context.Context, name string) (*models.EncryptedRecord, error) {
-	userName, ok := ctx.Value(models.UserContextKey).(string)
+	userName, ok := models.GetUserName(ctx)
 	if !ok || userName == "" {
 		return nil, fmt.Errorf("cache: user name missing in context")
 	}
@@ -84,7 +84,7 @@ func (c *CacheService) GetRecordByName(ctx context.Context, name string) (*model
 }
 
 func (c *CacheService) UpdateSingleRecord(ctx context.Context, record *models.EncryptedRecord) error {
-	userName, ok := ctx.Value(models.UserContextKey).(string)
+	userName, ok := models.GetUserName(ctx)
 	if !ok || userName == "" {
 		return fmt.Errorf("cache: user name missing in context")
 	}

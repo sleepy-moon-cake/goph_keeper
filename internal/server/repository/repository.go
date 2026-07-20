@@ -5,9 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"goph_keeper/internal/server/db"
+	"goph_keeper/internal/server/interfaces"
 	"goph_keeper/internal/shared/models"
+	"math"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type SQLRepository struct {
@@ -24,6 +27,13 @@ func (r *SQLRepository) AddUser(ctx context.Context, username, passwordHash stri
 		PasswordHash: passwordHash,
 	})
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23505" {
+				return interfaces.ErrUserAlreadyExists
+			}
+		}
+
 		return fmt.Errorf("repo: failed to add user: %w", err)
 	}
 	return nil
@@ -31,12 +41,15 @@ func (r *SQLRepository) AddUser(ctx context.Context, username, passwordHash stri
 
 func (r *SQLRepository) GetUserPassword(ctx context.Context, username string) (string, error) {
 	user, err := r.queries.GetUserByUsername(ctx, username)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return "", fmt.Errorf("repo: user not found")
+
+	if errors.Is(err, pgx.ErrNoRows) { // если используете database/sql, то sql.ErrNoRows
+		return "", interfaces.ErrUserNotFound
 	}
+
 	if err != nil {
 		return "", fmt.Errorf("repo: failed to get user password: %w", err)
 	}
+
 	return user.PasswordHash, nil
 }
 
@@ -86,17 +99,21 @@ func (r *SQLRepository) DeleteRecord(ctx context.Context, username, name string)
 }
 
 func (r *SQLRepository) ListRecords(ctx context.Context, username string, limit int32) ([]models.RecordMeta, error) {
-	rows, err := r.queries.GetAllRecordsByUsername(ctx, username)
+	dbLimit := limit
+	if dbLimit <= 0 {
+		dbLimit = math.MaxInt32
+	}
+
+	rows, err := r.queries.GetAllRecordsByUsername(ctx, db.GetAllRecordsByUsernameParams{
+		UserName: username,
+		Limit:    limit,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("repo: failed to list records: %w", err)
 	}
 
 	result := make([]models.RecordMeta, 0, len(rows))
 	for _, row := range rows {
-		if limit > 0 && int32(len(result)) >= limit {
-			break
-		}
-
 		result = append(result, models.RecordMeta{
 			Name:     row.RecordName,
 			DataType: row.DataType,

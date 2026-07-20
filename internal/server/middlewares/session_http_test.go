@@ -13,7 +13,8 @@ import (
 func mockHTTPHandler(t *testing.T, expectedUser string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Проверяем, что имя пользователя попало в контекст запроса
-		username, ok := r.Context().Value(models.UserContextKey).(string)
+		username, ok := models.GetUserName(r.Context())
+
 		if !ok || username != expectedUser {
 			t.Errorf("expected user '%s' in context, got '%s'", expectedUser, username)
 			w.WriteHeader(http.StatusInternalServerError)

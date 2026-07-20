@@ -24,8 +24,8 @@ type RoundTripperWrapper struct {
 }
 
 func (r *RoundTripperWrapper) RoundTrip(w *http.Request) (*http.Response, error) {
-	if token, ok := w.Context().Value(models.TokenContextKey).(string); ok {
-		w = w.Clone(w.Context())
+	if token, ok := models.GetToken(w.Context()); ok {
+		w = w.WithContext(w.Context())
 		w.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	}
 
@@ -156,7 +156,7 @@ func (t *HttpTransportService) ListRecords(ctx context.Context, limit int) ([]mo
 }
 
 func (t *HttpTransportService) GetEntityByName(ctx context.Context, name string) (*models.DecryptedRecord, error) {
-	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	cryptedKey, ok := models.GetCryptedKey(ctx)
 
 	if !ok {
 		return nil, fmt.Errorf("get entity")
@@ -225,7 +225,7 @@ func (t *HttpTransportService) DeleteEntityByName(ctx context.Context, name stri
 }
 
 func (t *HttpTransportService) SaveText(ctx context.Context, data models.TextData) error {
-	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	cryptedKey, ok := models.GetCryptedKey(ctx)
 	if !ok {
 		return fmt.Errorf("save text")
 	}
@@ -249,7 +249,7 @@ func (t *HttpTransportService) SaveText(ctx context.Context, data models.TextDat
 }
 
 func (t *HttpTransportService) SaveCard(ctx context.Context, data models.CardData) error {
-	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	cryptedKey, ok := models.GetCryptedKey(ctx)
 	if !ok {
 		return fmt.Errorf("save card")
 	}
@@ -273,7 +273,7 @@ func (t *HttpTransportService) SaveCard(ctx context.Context, data models.CardDat
 }
 
 func (t *HttpTransportService) SaveFile(ctx context.Context, data models.BinaryData) error {
-	cryptedKey, ok := ctx.Value(models.CryptedContextKey).(string)
+	cryptedKey, ok := models.GetCryptedKey(ctx)
 	if !ok {
 		return fmt.Errorf("save file")
 	}
