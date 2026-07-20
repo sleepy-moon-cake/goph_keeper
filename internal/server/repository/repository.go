@@ -42,7 +42,7 @@ func (r *SQLRepository) AddUser(ctx context.Context, username, passwordHash stri
 func (r *SQLRepository) GetUserPassword(ctx context.Context, username string) (string, error) {
 	user, err := r.queries.GetUserByUsername(ctx, username)
 
-	if errors.Is(err, pgx.ErrNoRows) { // если используете database/sql, то sql.ErrNoRows
+	if errors.Is(err, pgx.ErrNoRows) {
 		return "", interfaces.ErrUserNotFound
 	}
 
