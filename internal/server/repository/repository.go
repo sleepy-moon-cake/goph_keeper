@@ -72,9 +72,11 @@ func (r *SQLRepository) GetRecord(ctx context.Context, username, name string) (m
 		UserName:   username,
 		RecordName: name,
 	})
+
 	if errors.Is(err, pgx.ErrNoRows) {
-		return models.EncryptedRecord{}, fmt.Errorf("repo: record not found")
+		return models.EncryptedRecord{}, fmt.Errorf("repo: %w", interfaces.ErrRecordNotFound)
 	}
+
 	if err != nil {
 		return models.EncryptedRecord{}, fmt.Errorf("repo: failed to get record: %w", err)
 	}

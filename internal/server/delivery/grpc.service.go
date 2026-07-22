@@ -114,9 +114,11 @@ func (s *GRPCTransportServer) GetRecord(ctx context.Context, req *pb.GetRecordRe
 	name := req.GetName()
 	dbRecord, err := s.db.GetRecord(ctx, username, name)
 	if err != nil {
-		slog.Error("getRecord", "error", err)
+		if errors.Is(err, interfaces.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "record not found")
+		}
 
-		return nil, status.Error(codes.NotFound, "record not found")
+		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
 	resp := &pb.Record{}

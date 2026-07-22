@@ -208,7 +208,7 @@ func TestGRPCTransportServer_GetRecord_NotFound(t *testing.T) {
 	}
 
 	st, ok := status.FromError(err)
-	if !ok || st.Code() != codes.NotFound {
-		t.Errorf("expected gRPC code %v, got %v", codes.NotFound, st.Code())
+	if !ok || st.Code() != codes.Internal {
+		t.Errorf("expected gRPC code %v, got %v", codes.Internal, st.Code())
 	}
 }

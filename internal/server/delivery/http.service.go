@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"encoding/json"
+	"errors"
 	"goph_keeper/internal/server/interfaces"
 	"goph_keeper/internal/server/middlewares"
 	"goph_keeper/internal/server/utils"
@@ -9,7 +10,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 type HTTPHandler struct {
@@ -42,11 +42,6 @@ func NewHTTPHandler(db interfaces.RepositoryDb, secretKey string) *HTTPHandler {
 }
 
 func (h *HTTPHandler) Register(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	var req models.AuthRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -59,9 +54,15 @@ func (h *HTTPHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.db.AddUser(r.Context(), req.Name, req.PasswordHash); err != nil {
-		slog.Error("failed to register user", "error", err)
 
-		http.Error(w, "Username is already taken", http.StatusConflict)
+		if errors.Is(err, interfaces.ErrUserAlreadyExists) {
+			http.Error(w, http.StatusText(http.StatusConflict), http.StatusConflict)
+			return
+		}
+
+		slog.Error("failed to get user", "error", err)
+
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -79,11 +80,6 @@ func (h *HTTPHandler) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HTTPHandler) Login(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	var req models.AuthRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -111,11 +107,6 @@ func (h *HTTPHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HTTPHandler) SaveRecord(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	username, ok := models.GetUserName(r.Context())
 	if !ok || username == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -143,18 +134,13 @@ func (h *HTTPHandler) SaveRecord(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HTTPHandler) GetRecord(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	username, ok := models.GetUserName(r.Context())
 	if !ok || username == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	name := strings.TrimPrefix(r.URL.Path, "/api/v1/records/")
+	name := r.PathValue("name")
 	if name == "" {
 		http.Error(w, "Record name is required", http.StatusBadRequest)
 		return
@@ -162,7 +148,13 @@ func (h *HTTPHandler) GetRecord(w http.ResponseWriter, r *http.Request) {
 
 	dbRecord, err := h.db.GetRecord(r.Context(), username, name)
 	if err != nil {
-		http.Error(w, "Record not found", http.StatusNotFound)
+		if errors.Is(err, interfaces.ErrRecordNotFound) {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+
+		slog.Error("failed to get error", "error", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -171,18 +163,13 @@ func (h *HTTPHandler) GetRecord(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HTTPHandler) DeleteRecord(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	username, ok := models.GetUserName(r.Context())
 	if !ok || username == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	name := strings.TrimPrefix(r.URL.Path, "/api/v1/records/")
+	name := r.PathValue("name")
 	if name == "" {
 		http.Error(w, "Record name is required", http.StatusBadRequest)
 		return
@@ -196,11 +183,6 @@ func (h *HTTPHandler) DeleteRecord(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HTTPHandler) ListRecords(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	username, ok := models.GetUserName(r.Context())
 	if !ok || username == "" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)

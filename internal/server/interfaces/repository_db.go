@@ -19,4 +19,5 @@ type RepositoryDb interface {
 var (
 	ErrUserAlreadyExists = errors.New("user already exists")
 	ErrUserNotFound      = errors.New("user not found")
+	ErrRecordNotFound    = errors.New("record not found")
 )

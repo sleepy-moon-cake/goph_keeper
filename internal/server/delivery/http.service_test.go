@@ -3,12 +3,12 @@ package delivery_test
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"goph_keeper/internal/server/delivery"
+	"goph_keeper/internal/server/interfaces"
 	mocks "goph_keeper/internal/server/interfaces/gen"
 	"goph_keeper/internal/shared/models"
 
@@ -71,7 +71,7 @@ func TestHTTPHandler_Register_Conflict(t *testing.T) {
 	// Имитируем ошибку уникальности в БД
 	mockDb.EXPECT().
 		AddUser(gomock.Any(), "duplicate_user", "hash").
-		Return(errors.New("db unique constraint error")).
+		Return(interfaces.ErrUserAlreadyExists).
 		Times(1)
 
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/register", bytes.NewReader(bodyBytes))
@@ -81,7 +81,7 @@ func TestHTTPHandler_Register_Conflict(t *testing.T) {
 
 	res := w.Result()
 	if res.StatusCode != http.StatusConflict {
-		t.Errorf("expected status 409 Conflict, got %d", res.StatusCode)
+		t.Errorf("expected status 409, got %d", res.StatusCode)
 	}
 }
 
@@ -150,6 +150,7 @@ func TestHTTPHandler_GetRecord_Success(t *testing.T) {
 	ctx := models.WithUserName(t.Context(), "bob")
 	// strings.TrimPrefix отсекает префикс, оставляя "my_passport"
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/records/my_passport", nil).WithContext(ctx)
+	req.SetPathValue("name", "my_passport")
 	w := httptest.NewRecorder()
 
 	expectedRecord := models.EncryptedRecord{
