@@ -1,0 +1,18 @@
+package interfaces
+
+import (
+	"context"
+	"goph_keeper/internal/shared/models"
+)
+
+//go:generate mockgen -source=transport.go -destination=gen/mock_transport.go -package=mocks
+type TransportService interface {
+	SaveText(ctx context.Context, data models.TextData) error
+	SaveCard(ctx context.Context, data models.CardData) error
+	SaveFile(ctx context.Context, data models.BinaryData) error
+	DeleteEntityByName(ctx context.Context, name string) error
+	GetEntityByName(ctx context.Context, name string) (*models.DecryptedRecord, error)
+	ListRecords(ctx context.Context, limit int) ([]models.RecordMeta, error)
+	Login(ctx context.Context, name string, password string) (string, error)
+	Register(ctx context.Context, name string, password string) (string, error)
+}

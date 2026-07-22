@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package transport;
+option go_package = "./;pb";
+
+service TransportService {
+  rpc Register (AuthRequest) returns (AuthResponse);
+  rpc Login (AuthRequest) returns (AuthResponse);
+
+  // Универсальный метод: бэкенду всё равно, текстовый это пароль, карта или файл
+  rpc SaveRecord (Record) returns (SaveResponse);
+  rpc GetRecord (GetRecordRequest) returns (Record);
+  rpc DeleteRecord (GetRecordRequest) returns (SaveResponse);
+  rpc ListRecords (ListRecordsRequest) returns (ListRecordsResponse);
+}
+
+message AuthRequest {
+  string username = 1;
+  string password_hash = 2; // Хэш пароля, сгенерированный на клиенте
+}
+
+message AuthResponse {
+  string token = 1; // JWT-токен сессии
+}
+
+message ListRecordsRequest {
+  int32 limit = 1; // 0 означает "без лимита"
+}
+
+message ListRecordsResponse {
+  // Компактное описание записи для списка
+  message RecordMeta {
+    string name = 1;
+    string data_type = 2;
+  }
+  repeated RecordMeta records = 1;
+}
+
+message Record {
+  string name = 1;         // Уникальный ключ/название (можно не шифровать для поиска)
+  string data_type = 2;    // "text", "card" или "file" (чтобы клиент знал, как отобразить после расшифровки)
+  bytes secure_data = 3;   // ЗАШИФРОВАННЫЕ НА КЛИЕНТЕ БАЙТЫ (криптограмма)
+  bytes nonce = 4;         // Вектор инициализации (IV) для AES, необходимый для расшифровки
+}
+
+message GetRecordRequest {
+  string name = 1;
+}
+
+message SaveResponse {}
